@@ -1,11 +1,18 @@
 import { Link, useLocation } from "wouter";
-import { Menu, X } from "lucide-react";
+import { Menu, X, Facebook, Instagram, Youtube, FileText } from "lucide-react";
 import { useState } from "react";
 
 const navLinks = [
   { href: "/", label: "Home" },
   { href: "/blog", label: "Blog" },
   { href: "/about", label: "About" },
+];
+
+const socialLinks = [
+  { icon: Facebook, href: "https://facebook.com/Advisors.West", label: "Facebook" },
+  { icon: Instagram, href: "https://www.instagram.com/thehybridbroker/", label: "Instagram" },
+  { icon: Youtube, href: "https://www.youtube.com/@HelloIamGregAnderson", label: "YouTube" },
+  { icon: FileText, href: "https://substack.com/@helloiamgreganderson", label: "Substack" },
 ];
 
 export function Navbar() {
@@ -27,7 +34,7 @@ export function Navbar() {
             </div>
           </Link>
 
-          <div className="hidden md:flex items-center gap-10">
+          <div className="hidden md:flex items-center gap-8">
             {navLinks.map((link) => (
               <Link
                 key={link.href}
@@ -51,6 +58,22 @@ export function Navbar() {
             >
               Podcast
             </a>
+            
+            <div className="flex items-center gap-1 ml-2 pl-4 border-l border-border/50">
+              {socialLinks.map((social) => (
+                <a
+                  key={social.label}
+                  href={social.href}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="p-2 rounded-full text-muted-foreground hover:text-primary hover:bg-secondary/50 transition-colors"
+                  aria-label={social.label}
+                  data-testid={`link-nav-social-${social.label.toLowerCase()}`}
+                >
+                  <social.icon className="w-4 h-4" />
+                </a>
+              ))}
+            </div>
           </div>
 
           <button
@@ -93,6 +116,20 @@ export function Navbar() {
               >
                 Podcast
               </a>
+              <div className="flex items-center gap-3 pt-4 border-t border-border/50">
+                {socialLinks.map((social) => (
+                  <a
+                    key={social.label}
+                    href={social.href}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="p-2 rounded-full bg-secondary text-foreground"
+                    aria-label={social.label}
+                  >
+                    <social.icon className="w-5 h-5" />
+                  </a>
+                ))}
+              </div>
             </div>
           </div>
         )}

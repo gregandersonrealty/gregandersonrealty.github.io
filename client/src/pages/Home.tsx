@@ -1,5 +1,5 @@
 import { Link } from "wouter";
-import { ArrowRight, Play, CheckCircle, Award, Home as HomeIcon, TrendingUp, Users } from "lucide-react";
+import { ArrowRight, Play, Home as HomeIcon, TrendingUp, Award, Users, Quote, Heart, Shield, MessageCircle } from "lucide-react";
 import { Navbar } from "@/components/Navbar";
 import { Footer } from "@/components/Footer";
 import { BlogCard } from "@/components/BlogCard";
@@ -8,18 +8,28 @@ import heroHome from "@assets/stock_images/luxury_home_exterior_4a6b3f4f.jpg";
 import agentPhoto from "@assets/stock_images/professional_real_es_441f93e4.jpg";
 
 const highlights = [
-  { icon: HomeIcon, value: "3,000+", label: "Homes Sold" },
+  { icon: HomeIcon, value: "3,000+", label: "Families Helped" },
   { icon: TrendingUp, value: "41", label: "Years Experience" },
-  { icon: Award, value: "RE/MAX", label: "Hall of Fame" },
-  { icon: Users, value: "Since 1985", label: "Licensed" },
+  { icon: Award, value: "Hall of Fame", label: "RE/MAX" },
+  { icon: Users, value: "Since 1985", label: "Trusted" },
 ];
 
-const specialties = [
-  "Traditional Residential Sales",
-  "Distressed Property Solutions & REO",
-  "New Construction & Land Liquidations",
-  "Luxury Homes & Development Land",
-  "Investments & Relocation",
+const whyChooseMe = [
+  {
+    icon: Heart,
+    title: "I Care About Your Story",
+    description: "Every family is different. I take time to understand your unique needs, timeline, and dreams before we look at a single listing.",
+  },
+  {
+    icon: Shield,
+    title: "41 Years of Trust",
+    description: "Over 3,000 families have trusted me with their biggest decision. I've earned that trust by always putting your interests first.",
+  },
+  {
+    icon: MessageCircle,
+    title: "Always Here for You",
+    description: "Questions at 9pm? Nervous about an offer? I'm accessible, responsive, and here to guide you through every step.",
+  },
 ];
 
 export default function Home() {
@@ -38,41 +48,38 @@ export default function Home() {
               alt="Beautiful home in Carver County, Minnesota"
               className="w-full h-full object-cover"
             />
-            <div className="absolute inset-0 bg-gradient-to-r from-background/95 via-background/85 to-background/50" />
+            <div className="absolute inset-0 bg-gradient-to-r from-background/98 via-background/90 to-background/60" />
           </div>
 
-          <div className="relative max-w-6xl mx-auto px-6 lg:px-8 py-24 md:py-32 lg:py-40">
+          <div className="relative max-w-6xl mx-auto px-6 lg:px-8 py-24 md:py-32 lg:py-44">
             <div className="max-w-2xl animate-fade-up">
               <p className="text-primary font-medium tracking-wide mb-4">
-                RE/MAX Advisors West | Chaska, Minnesota
+                Carver County's Trusted Realtor
               </p>
               <h1 className="font-display text-4xl md:text-5xl lg:text-6xl font-semibold text-foreground leading-tight mb-6">
-                Hello, I'm Greg Anderson
+                Finding Your Perfect Home Starts With Someone Who Listens
               </h1>
-              <p className="text-lg text-muted-foreground leading-relaxed mb-4">
-                MN REALTOR since 1985. Over 3,000 homes sold. Broker/Owner of RE/MAX Advisors West.
-              </p>
-              <p className="text-base text-muted-foreground leading-relaxed mb-8">
-                Host of the "Living In Carver County" podcast. Connecting friends, building community—one conversation at a time.
+              <p className="text-lg text-muted-foreground leading-relaxed mb-8 max-w-xl">
+                I'm Greg Anderson—your neighbor, your advocate, and your guide through one of life's biggest decisions. Let's find the right home for your family, together.
               </p>
               <div className="flex flex-wrap gap-4">
                 <Link
-                  href="/blog"
-                  className="inline-flex items-center gap-2 px-6 py-3 bg-primary text-primary-foreground rounded-lg font-medium hover:bg-primary/90 transition-colors"
-                  data-testid="button-hero-blog"
+                  href="/about"
+                  className="inline-flex items-center gap-2 px-6 py-3.5 bg-primary text-primary-foreground rounded-lg font-medium hover:bg-primary/90 transition-colors"
+                  data-testid="button-hero-about"
                 >
-                  Browse Free Content
+                  Let's Talk
                   <ArrowRight className="w-4 h-4" />
                 </Link>
                 <a
                   href="https://livingincarvercounty.com"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="inline-flex items-center gap-2 px-6 py-3 bg-card border border-border rounded-lg font-medium hover:bg-secondary transition-colors"
+                  className="inline-flex items-center gap-2 px-6 py-3.5 bg-card border border-border rounded-lg font-medium hover:bg-secondary transition-colors"
                   data-testid="button-hero-podcast"
                 >
                   <Play className="w-4 h-4" />
-                  Listen to Podcast
+                  Hear My Podcast
                 </a>
               </div>
             </div>
@@ -94,40 +101,64 @@ export default function Home() {
           </div>
         </section>
 
-        {/* About Preview */}
+        {/* Why Choose Me */}
         <section className="py-20 md:py-28">
+          <div className="max-w-6xl mx-auto px-6 lg:px-8">
+            <div className="text-center mb-14">
+              <p className="text-primary font-medium tracking-wide mb-3">Why Families Choose Me</p>
+              <h2 className="font-display text-3xl md:text-4xl font-semibold max-w-2xl mx-auto">
+                More Than a Realtor—A Partner You Can Trust
+              </h2>
+            </div>
+
+            <div className="grid md:grid-cols-3 gap-8">
+              {whyChooseMe.map((item, index) => (
+                <div key={index} className="bg-card p-8 rounded-2xl border border-border/50 hover:shadow-lg transition-shadow">
+                  <div className="w-14 h-14 rounded-xl bg-primary/10 flex items-center justify-center mb-6">
+                    <item.icon className="w-7 h-7 text-primary" />
+                  </div>
+                  <h3 className="font-display text-xl font-semibold mb-3">{item.title}</h3>
+                  <p className="text-muted-foreground leading-relaxed">{item.description}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        {/* Personal Introduction */}
+        <section className="py-20 md:py-28 bg-secondary/30">
           <div className="max-w-6xl mx-auto px-6 lg:px-8">
             <div className="grid md:grid-cols-2 gap-12 lg:gap-20 items-center">
               <div className="order-2 md:order-1">
-                <p className="text-primary font-medium tracking-wide mb-4">Local Expertise</p>
+                <p className="text-primary font-medium tracking-wide mb-4">A Little About Me</p>
                 <h2 className="font-display text-3xl md:text-4xl font-semibold mb-6 leading-tight">
-                  Why Local Knowledge Matters
+                  I'm Your Neighbor, Too
                 </h2>
                 <p className="text-muted-foreground leading-relaxed mb-6">
-                  Chaska's $452,000 median tells you nothing about the $900,000+ variation between Historic Downtown and Lake Bavaria estates. Generic metro agents miss these distinctions. I don't.
+                  I've called Carver County home for decades. I raised my family here, I know the schools, the parks, the best spots for coffee. When I help you find a home, I'm not just looking at square footage—I'm thinking about your life here.
                 </p>
                 <p className="text-muted-foreground leading-relaxed mb-8">
-                  Four decades tracking every development, infrastructure change, and market cycle means I know not just what's happening—but why it matters to your transaction.
+                  Whether you're buying your first home, selling a place full of memories, or navigating a difficult situation, I approach every conversation with patience, honesty, and genuine care.
                 </p>
-                <div className="space-y-3">
-                  {specialties.map((specialty, index) => (
-                    <div key={index} className="flex items-center gap-3">
-                      <CheckCircle className="w-5 h-5 text-primary flex-shrink-0" />
-                      <span className="text-foreground">{specialty}</span>
-                    </div>
-                  ))}
-                </div>
+                <Link
+                  href="/about"
+                  className="inline-flex items-center gap-2 text-primary font-medium hover:gap-3 transition-all"
+                  data-testid="link-learn-more"
+                >
+                  Learn More About Me
+                  <ArrowRight className="w-4 h-4" />
+                </Link>
               </div>
               <div className="order-1 md:order-2">
                 <div className="relative">
                   <img
                     src={agentPhoto}
                     alt="Greg Anderson - RE/MAX Advisors West"
-                    className="w-full rounded-lg shadow-lg"
+                    className="w-full rounded-2xl shadow-lg"
                   />
-                  <div className="absolute -bottom-6 -left-6 bg-card p-6 rounded-lg shadow-lg border border-border/50 max-w-xs hidden lg:block">
-                    <p className="font-display text-xl font-semibold text-foreground mb-1">Serving</p>
-                    <p className="text-sm text-muted-foreground">Chaska, Chanhassen, Victoria, Eden Prairie, Carver, Waconia, Mayer, Cologne</p>
+                  <div className="absolute -bottom-6 -left-6 bg-card p-6 rounded-xl shadow-lg border border-border/50 max-w-xs hidden lg:block">
+                    <p className="font-display text-lg font-semibold text-foreground mb-1">Serving</p>
+                    <p className="text-sm text-muted-foreground">Chaska, Chanhassen, Victoria, Eden Prairie & more</p>
                   </div>
                 </div>
               </div>
@@ -135,20 +166,14 @@ export default function Home() {
           </div>
         </section>
 
-        {/* Recognition */}
-        <section className="py-16 bg-secondary/30">
-          <div className="max-w-6xl mx-auto px-6 lg:px-8">
-            <div className="text-center mb-10">
-              <p className="text-primary font-medium tracking-wide mb-2">Recognition</p>
-              <h2 className="font-display text-2xl md:text-3xl font-semibold">Awards & Designations</h2>
-            </div>
-            <div className="flex flex-wrap justify-center gap-4 text-sm">
-              {["RE/MAX Circle of Legends", "Lifetime Achievement", "Hall of Fame", "CRS", "GRI", "ABR", "CDPE", "CLHMS", "RFS"].map((award) => (
-                <span key={award} className="px-4 py-2 bg-card rounded-full border border-border/50 text-muted-foreground">
-                  {award}
-                </span>
-              ))}
-            </div>
+        {/* Testimonial */}
+        <section className="py-16 bg-card border-y border-border/50">
+          <div className="max-w-4xl mx-auto px-6 lg:px-8 text-center">
+            <Quote className="w-10 h-10 mx-auto mb-6 text-primary/30" />
+            <blockquote className="font-display text-xl md:text-2xl text-foreground leading-relaxed mb-6">
+              "It's our goal to exceed all expectations both during and after every transaction. As a result, clients enthusiastically refer family members, friends, neighbors, and co-workers to us."
+            </blockquote>
+            <p className="text-muted-foreground">— The promise I've kept for 41 years</p>
           </div>
         </section>
 
@@ -157,9 +182,9 @@ export default function Home() {
           <div className="max-w-6xl mx-auto px-6 lg:px-8">
             <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-4 mb-12">
               <div>
-                <p className="text-primary font-medium tracking-wide mb-2">Latest Content</p>
+                <p className="text-primary font-medium tracking-wide mb-2">Free Resources</p>
                 <h2 className="font-display text-3xl md:text-4xl font-semibold">
-                  Fresh Insights & Advice
+                  Helpful Insights for You
                 </h2>
               </div>
               <Link
@@ -184,10 +209,10 @@ export default function Home() {
         <section className="py-20 md:py-28 bg-primary text-primary-foreground">
           <div className="max-w-4xl mx-auto px-6 lg:px-8 text-center">
             <h2 className="font-display text-3xl md:text-4xl font-semibold mb-6">
-              Ready to Make Your Move?
+              Ready to Take the Next Step?
             </h2>
             <p className="text-primary-foreground/80 text-lg mb-8 max-w-2xl mx-auto">
-              Whether buying your first Chaska home, selling Carver County property, managing distressed assets, or exploring investments—I bring local expertise and current market knowledge.
+              Whether you're just starting to think about it or ready to move forward, I'm here to help. No pressure, just a friendly conversation about your goals.
             </p>
             <Link
               href="/about"
