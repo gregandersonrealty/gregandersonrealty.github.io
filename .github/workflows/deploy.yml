@@ -27,6 +27,8 @@ jobs:
         run: npm run build
         env:
           VITE_BASE_URL: '/Chaska-Realty-Blog/'
+      - name: Add .nojekyll to dist
+        run: touch dist/public/.nojekyll
       - name: Upload artifact to GitHub Pages
         uses: actions/upload-pages-artifact@v4
         with:
