@@ -3,15 +3,18 @@ import { Navbar } from "@/components/Navbar";
 import { Footer } from "@/components/Footer";
 import { BlogCard } from "@/components/BlogCard";
 import { CategoryFilter } from "@/components/CategoryFilter";
-import { blogPosts, categories } from "@/lib/blogData";
+import { useCategories } from "@/lib/categoriesApi";
 import { Search } from "lucide-react";
+import { usePosts } from "@/lib/postsApi";
 
 export default function Blog() {
   const [activeCategory, setActiveCategory] = useState("all");
   const [searchQuery, setSearchQuery] = useState("");
 
+  const { data: posts = [], isLoading, isError } = usePosts();
+  const { data: categories = [] } = useCategories();
   const filteredPosts = useMemo(() => {
-    return blogPosts.filter((post) => {
+    return posts.filter((post) => {
       const matchesCategory = activeCategory === "all" || post.category === activeCategory;
       const matchesSearch =
         searchQuery === "" ||
@@ -19,7 +22,7 @@ export default function Blog() {
         post.excerpt.toLowerCase().includes(searchQuery.toLowerCase());
       return matchesCategory && matchesSearch;
     });
-  }, [activeCategory, searchQuery]);
+  }, [posts, activeCategory, searchQuery]);
 
   const featuredPost = filteredPosts[0];
   const remainingPosts = filteredPosts.slice(1);
@@ -50,7 +53,7 @@ export default function Blog() {
           <div className="max-w-6xl mx-auto px-6 lg:px-8">
             <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6">
               <CategoryFilter
-                categories={categories}
+                categories={categories ?? []}
                 activeCategory={activeCategory}
                 onCategoryChange={setActiveCategory}
               />
@@ -72,11 +75,13 @@ export default function Blog() {
         {/* Posts Grid */}
         <section className="py-12 md:py-16">
           <div className="max-w-6xl mx-auto px-6 lg:px-8">
-            {filteredPosts.length === 0 ? (
+            {isLoading ? (
+              <div className="text-center py-20">Loading posts...</div>
+            ) : isError ? (
+              <div className="text-center py-20">Failed to load posts.</div>
+            ) : filteredPosts.length === 0 ? (
               <div className="text-center py-20">
-                <p className="text-muted-foreground text-lg">
-                  No posts found matching your criteria.
-                </p>
+                <p className="text-muted-foreground text-lg">No posts found matching your criteria.</p>
                 <button
                   onClick={() => {
                     setActiveCategory("all");

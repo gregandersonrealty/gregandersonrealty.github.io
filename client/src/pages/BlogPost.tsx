@@ -2,25 +2,35 @@ import { useParams, Link } from "wouter";
 import { Navbar } from "@/components/Navbar";
 import { Footer } from "@/components/Footer";
 import { BlogCard } from "@/components/BlogCard";
-import { blogPosts } from "@/lib/blogData";
 import { ArrowLeft, Calendar, Clock, Play, Share2, Facebook, Twitter, Linkedin } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
+import { usePosts } from "@/lib/postsApi";
 
 export default function BlogPost() {
   const { id } = useParams<{ id: string }>();
-  const post = blogPosts.find((p) => p.id === id);
-  const relatedPosts = blogPosts.filter((p) => p.id !== id && p.category === post?.category).slice(0, 2);
+  const { data: posts = [], isLoading, isError } = usePosts();
 
-  if (!post) {
+  const post = posts.find((p) => p.id === id);
+  const relatedPosts = posts.filter((p) => p.id !== id && p.category === post?.category).slice(0, 2);
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen flex flex-col">
+        <Navbar />
+        <main className="flex-1 flex items-center justify-center">Loading post...</main>
+        <Footer />
+      </div>
+    );
+  }
+
+  if (isError || !post) {
     return (
       <div className="min-h-screen flex flex-col">
         <Navbar />
         <main className="flex-1 flex items-center justify-center">
           <div className="text-center">
             <h1 className="font-display text-3xl font-semibold mb-4">Post Not Found</h1>
-            <Link href="/blog" className="text-primary hover:underline">
-              Back to Blog
-            </Link>
+            <Link href="/blog" className="text-primary hover:underline">Back to Blog</Link>
           </div>
         </main>
         <Footer />

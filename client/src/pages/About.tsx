@@ -68,7 +68,7 @@ export default function About() {
               </div>
               <div className="relative">
                 <img
-                  src="foodtruck_greg.jpg"p
+                  src="foodtruck_greg.jpg"
                   alt="Greg Anderson - RE/MAX Advisors West"
                   className="w-full rounded-2xl shadow-xl"
                 />
@@ -142,16 +142,6 @@ export default function About() {
           </div>
         </section>
 
-        {/* Testimonial Quote */}
-        <section className="py-16 bg-primary text-primary-foreground">
-          <div className="max-w-4xl mx-auto px-6 lg:px-8 text-center">
-            <Quote className="w-10 h-10 mx-auto mb-6 opacity-50" />
-            <blockquote className="font-display text-2xl md:text-3xl font-medium leading-relaxed mb-6">
-              "It's our goal to exceed all expectations both during and after every transaction. As a result, clients enthusiastically refer family members, friends, neighbors, and co-workers to us."
-            </blockquote>
-            <p className="text-primary-foreground/70">— My team's commitment since day one</p>
-          </div>
-        </section>
 
         {/* Why Local Matters */}
         <section className="py-20 md:py-28">

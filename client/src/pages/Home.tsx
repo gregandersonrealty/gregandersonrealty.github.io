@@ -3,7 +3,7 @@ import { ArrowRight, Play, Home as HomeIcon, TrendingUp, Award, Users, Quote, He
 import { Navbar } from "@/components/Navbar";
 import { Footer } from "@/components/Footer";
 import { BlogCard } from "@/components/BlogCard";
-import { blogPosts } from "@/lib/blogData";
+import { usePosts } from "@/lib/postsApi";
 
 const highlights = [
   { icon: HomeIcon, value: "3,000+", label: "Families Helped" },
@@ -31,7 +31,9 @@ const whyChooseMe = [
 ];
 
 export default function Home() {
-  const featuredPosts = blogPosts.slice(0, 3);
+  const { data, isLoading } = usePosts();
+  const posts = data ?? [];
+  const featuredPosts = posts.slice(0, 3);
 
   return (
     <div className="min-h-screen flex flex-col">

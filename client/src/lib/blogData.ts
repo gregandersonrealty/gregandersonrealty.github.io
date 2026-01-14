@@ -96,3 +96,39 @@ export const blogPosts: BlogPost[] = [
     readTime: "7 min read",
   },
 ];
+
+// Local persistence for custom posts created through the admin UI
+const LOCAL_KEY = "greg_blog_custom_posts";
+
+function loadSavedPosts() {
+  if (typeof window === "undefined") return;
+  try {
+    const raw = localStorage.getItem(LOCAL_KEY);
+    if (!raw) return;
+    const saved = JSON.parse(raw) as BlogPost[];
+    if (saved && Array.isArray(saved) && saved.length > 0) {
+      // Newer posts should appear first
+      blogPosts.unshift(...saved);
+    }
+  } catch (e) {
+    // ignore
+  }
+}
+
+export function addBlogPost(post: BlogPost) {
+  // Add to runtime list
+  blogPosts.unshift(post);
+
+  // Persist
+  if (typeof window === "undefined") return;
+  try {
+    const existing = JSON.parse(localStorage.getItem(LOCAL_KEY) || "[]") as BlogPost[];
+    existing.unshift(post);
+    localStorage.setItem(LOCAL_KEY, JSON.stringify(existing));
+  } catch (e) {
+    // ignore
+  }
+}
+
+// Initialize saved posts when module loads in browser
+loadSavedPosts();
