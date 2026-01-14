@@ -21,3 +21,6 @@ If you'd like, I can:
 - Add edit / preview features in the Admin UI.
 - Add server-side authentication (username/password + sessions) and an audit log.
 - Create a protected GitHub workflow (e.g., create a PR instead of pushing directly) so changes are reviewed.
+
+
+ci: trigger re-run after lockfile checks
