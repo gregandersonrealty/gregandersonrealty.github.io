@@ -41,7 +41,7 @@ export function Navbar() {
           <Link href="/" data-testid="link-home-logo">
             <div className="flex items-center gap-3">
               <img
-                src="/remax_logo.png"
+                src={`${import.meta.env.BASE_URL}remax_logo.png`}
                 alt="RE\/MAX logo"
                 className="w-8 h-8 sm:w-10 sm:h-10 rounded-full object-cover"
               />

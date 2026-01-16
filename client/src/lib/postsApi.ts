@@ -19,7 +19,7 @@ export async function fetchPosts(): Promise<BlogPost[]> {
     content: row.content,
     category: row.categories?.name || "Uncategorized",
     type: row.type || "article",
-    image: row.image || "/remax_logo.png",
+    image: row.image || `${import.meta.env.BASE_URL}remax_logo.png`,
     date: new Date(row.created_at).toLocaleDateString("en-US", {
       month: "short",
       day: "numeric",
@@ -38,7 +38,7 @@ export async function createPost(post: any) {
     content: post.content || "",
     category_id: post.category_id,
     type: post.type || "article",
-    image: post.image || "/remax_logo.png",
+    image: post.image || `${import.meta.env.BASE_URL}remax_logo.png`,
     read_time: post.readTime || "5 min read",
     published: true,
   });

@@ -83,7 +83,7 @@ export default function AddPost() {
       return;
     }
 
-    const image = imageData || imageUrl || "/remax_logo.png";
+    const image = imageData || imageUrl || `${import.meta.env.BASE_URL}remax_logo.png`;
     const readTime = type === "video" ? "5 min watch" : computeReadTime(content || excerpt);
 
     setLoading(true);
