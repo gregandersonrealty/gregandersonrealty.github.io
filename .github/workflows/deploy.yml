@@ -60,11 +60,13 @@ jobs:
           echo "kylehoversten.com" > dist/public/CNAME
           ls -la dist/public
 
-      - name: Deploy to GitHub Pages
-        uses: peaceiris/actions-gh-pages@v3
+      - name: Upload artifact to GitHub Pages
+        uses: actions/upload-pages-artifact@v4
         with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: ./dist/public
+          path: ./dist/public
+
+      - name: Deploy to GitHub Pages
+        uses: actions/deploy-pages@v4
           
       - name: Success message
         run: echo "Deployed to GitHub Pages"
