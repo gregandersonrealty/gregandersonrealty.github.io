@@ -1,5 +1,7 @@
 import { Link } from "wouter";
-import { Facebook, Instagram, Youtube, Mail, Phone, MapPin, Podcast, FileText, Linkedin } from "lucide-react";
+import { Facebook, Instagram, Youtube, Mail, Phone, MapPin, Podcast, Linkedin, ExternalLink } from "lucide-react";
+import { OFFICE } from "@/lib/office";
+import { MediumIcon, SubstackIcon } from "@/components/icons/SocialIcons";
 
 function TikTok({ className }: { className?: string }) {
   return (
@@ -20,7 +22,8 @@ const socialLinks = [
   { icon: TikTok, href: "https://www.tiktok.com/@thehybridbroker", label: "TikTok" },
   { icon: Youtube, href: "https://www.youtube.com/@HelloIamGregAnderson", label: "YouTube" },
   { icon: Linkedin, href: "https://www.linkedin.com/in/gregoryranderson", label: "LinkedIn" },
-  { icon: FileText, href: "https://substack.com/@helloiamgreganderson", label: "Substack" },
+  { icon: MediumIcon, href: "https://medium.com/@thehybridbroker", label: "Medium" },
+  { icon: SubstackIcon, href: "https://substack.com/@helloiamgreganderson", label: "Substack" },
 ];
 
 export function Footer() {
@@ -67,18 +70,36 @@ export function Footer() {
           <div>
             <h4 className="font-display text-lg font-medium mb-4">Contact</h4>
             <div className="flex flex-col gap-3">
-              <a href="tel:+19525551234" className="flex items-center gap-2 text-sm text-muted-foreground hover:text-primary transition-colors" data-testid="link-phone">
+              <a href="tel:+16123866155" className="flex items-center gap-2 text-sm text-muted-foreground hover:text-primary transition-colors" data-testid="link-phone-mobile">
                 <Phone className="w-4 h-4" />
-                Contact Office
+                Mobile: (612) 386-6155
               </a>
-              <a href="mailto:greg@advisorswest.com" className="flex items-center gap-2 text-sm text-muted-foreground hover:text-primary transition-colors" data-testid="link-email">
+              <a href="tel:+19523686014" className="flex items-center gap-2 text-sm text-muted-foreground hover:text-primary transition-colors" data-testid="link-phone-direct">
+                <Phone className="w-4 h-4" />
+                Direct: (952) 368-6014
+              </a>
+              <a href="mailto:thehybridbroker@gmail.com" className="flex items-center gap-2 text-sm text-muted-foreground hover:text-primary transition-colors" data-testid="link-email">
                 <Mail className="w-4 h-4" />
-                greg@advisorswest.com
+                thehybridbroker@gmail.com
               </a>
               <span className="flex items-start gap-2 text-sm text-muted-foreground">
                 <MapPin className="w-4 h-4 mt-0.5 flex-shrink-0" />
-                <span>207 Chestnut St, Ste. 100<br />Chaska, MN 55318</span>
+                <span>
+                  {OFFICE.addressLines[0]}
+                  <br />
+                  {OFFICE.addressLines[1]}
+                </span>
               </span>
+              <a
+                href={OFFICE.googleMapsShareUrl || OFFICE.googleMapsQueryUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center gap-2 text-sm text-muted-foreground hover:text-primary transition-colors"
+                data-testid="link-office-maps-footer"
+              >
+                <ExternalLink className="w-4 h-4" />
+                View on Google Maps
+              </a>
             </div>
           </div>
         </div>

@@ -1,13 +1,76 @@
 import { EditorContent, useEditor, type JSONContent } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
 import Image from "@tiptap/extension-image";
+import Youtube from "@tiptap/extension-youtube";
 import Link from "@tiptap/extension-link";
 import Underline from "@tiptap/extension-underline";
 import Placeholder from "@tiptap/extension-placeholder";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { supabase } from "@/lib/supabase";
+import { Video } from "@/lib/tiptapVideo";
 
 const DEFAULT_BUCKET = import.meta.env.VITE_SUPABASE_BLOG_IMAGES_BUCKET || "blog-images";
+
+function parseYouTubeTimeToSeconds(raw: string): number | null {
+  const trimmed = raw.trim();
+  if (!trimmed) return null;
+
+  // Supports: 90, 90s, 1m30s, 1h2m3s
+  if (/^\d+$/.test(trimmed)) return Number(trimmed);
+
+  const match = trimmed.match(/^(?:(\d+)h)?(?:(\d+)m)?(?:(\d+)s)?$/i);
+  if (!match) return null;
+  const h = match[1] ? Number(match[1]) : 0;
+  const m = match[2] ? Number(match[2]) : 0;
+  const s = match[3] ? Number(match[3]) : 0;
+  const total = h * 3600 + m * 60 + s;
+  return total > 0 ? total : null;
+}
+
+function toYouTubeEmbedUrl(input: string): string | null {
+  const raw = input.trim();
+  if (!raw) return null;
+
+  const withScheme = /^https?:\/\//i.test(raw) ? raw : `https://${raw.replace(/^\/\/+/, "")}`;
+
+  let url: URL;
+  try {
+    url = new URL(withScheme);
+  } catch {
+    return null;
+  }
+
+  const host = url.hostname.replace(/^www\./, "").toLowerCase();
+
+  let videoId: string | null = null;
+  if (host === "youtu.be") {
+    videoId = url.pathname.split("/").filter(Boolean)[0] ?? null;
+  } else if (host === "youtube.com" || host === "m.youtube.com") {
+    const parts = url.pathname.split("/").filter(Boolean);
+    if (url.pathname === "/watch") {
+      videoId = url.searchParams.get("v");
+    } else if (parts[0] === "shorts" && parts[1]) {
+      videoId = parts[1];
+    } else if (parts[0] === "embed" && parts[1]) {
+      videoId = parts[1];
+    } else if (parts[0] === "live" && parts[1]) {
+      videoId = parts[1];
+    }
+  }
+
+  if (!videoId) return null;
+  // Basic hardening; YouTube IDs are typically 11 chars but can vary.
+  if (!/^[a-zA-Z0-9_-]{6,}$/.test(videoId)) return null;
+
+  const startRaw = url.searchParams.get("start") || url.searchParams.get("t") || "";
+  const start = parseYouTubeTimeToSeconds(startRaw);
+
+  const embed = new URL(`https://www.youtube-nocookie.com/embed/${videoId}`);
+  embed.searchParams.set("rel", "0");
+  embed.searchParams.set("modestbranding", "1");
+  if (start) embed.searchParams.set("start", String(start));
+  return embed.toString();
+}
 
 function safeUuid(): string {
   if (typeof crypto !== "undefined" && "randomUUID" in crypto) return crypto.randomUUID();
@@ -30,6 +93,25 @@ async function uploadImageToSupabase(file: File): Promise<string> {
   const { data } = supabase.storage.from(DEFAULT_BUCKET).getPublicUrl(path);
   const publicUrl = data?.publicUrl;
   if (!publicUrl) throw new Error("Failed to generate a public URL for uploaded image");
+  return publicUrl;
+}
+
+async function uploadVideoToSupabase(file: File): Promise<string> {
+  const ext = (file.name.split(".").pop() || "mp4").toLowerCase();
+  const filename = `${Date.now()}-${safeUuid()}.${ext}`;
+  const path = `tiptap/videos/${filename}`;
+
+  const { error } = await supabase.storage.from(DEFAULT_BUCKET).upload(path, file, {
+    contentType: file.type || "application/octet-stream",
+    cacheControl: "3600",
+    upsert: false,
+  });
+
+  if (error) throw new Error(error.message);
+
+  const { data } = supabase.storage.from(DEFAULT_BUCKET).getPublicUrl(path);
+  const publicUrl = data?.publicUrl;
+  if (!publicUrl) throw new Error("Failed to generate a public URL for uploaded video");
   return publicUrl;
 }
 
@@ -72,6 +154,7 @@ export function TiptapEditor({
   onUploadStateChange?: (uploading: boolean) => void;
 }) {
   const fileInputRef = useRef<HTMLInputElement | null>(null);
+  const videoInputRef = useRef<HTMLInputElement | null>(null);
   const [uploading, setUploading] = useState(false);
 
   const setUploadingSafe = (value: boolean) => {
@@ -99,6 +182,8 @@ export function TiptapEditor({
         inline: false,
         allowBase64: false,
       }),
+      Youtube,
+      Video,
       Placeholder.configure({
         placeholder: "Write your post…",
       }),
@@ -118,17 +203,23 @@ export function TiptapEditor({
         const dt = event.clipboardData;
         if (!dt) return false;
         const files = Array.from(dt.files || []);
+        const video = files.find((f) => f.type.startsWith("video/"));
         const image = files.find((f) => f.type.startsWith("image/"));
-        if (!image) return false;
+        if (!video && !image) return false;
 
         event.preventDefault();
         (async () => {
           try {
             setUploadingSafe(true);
-            const url = await uploadImageToSupabase(image);
-            editor?.chain().focus().setImage({ src: url }).run();
+            if (video) {
+              const url = await uploadVideoToSupabase(video);
+              editor?.chain().focus().setVideo({ src: url, title: video.name }).run();
+            } else if (image) {
+              const url = await uploadImageToSupabase(image);
+              editor?.chain().focus().setImage({ src: url }).run();
+            }
           } catch (e) {
-            console.error("Image paste upload failed", e);
+            console.error("Media paste upload failed", e);
           } finally {
             setUploadingSafe(false);
           }
@@ -140,17 +231,23 @@ export function TiptapEditor({
         const dt = event.dataTransfer;
         if (!dt) return false;
         const files = Array.from(dt.files || []);
+        const video = files.find((f) => f.type.startsWith("video/"));
         const image = files.find((f) => f.type.startsWith("image/"));
-        if (!image) return false;
+        if (!video && !image) return false;
 
         event.preventDefault();
         (async () => {
           try {
             setUploadingSafe(true);
-            const url = await uploadImageToSupabase(image);
-            editor?.chain().focus().setImage({ src: url }).run();
+            if (video) {
+              const url = await uploadVideoToSupabase(video);
+              editor?.chain().focus().setVideo({ src: url, title: video.name }).run();
+            } else if (image) {
+              const url = await uploadImageToSupabase(image);
+              editor?.chain().focus().setImage({ src: url }).run();
+            }
           } catch (e) {
-            console.error("Image drop upload failed", e);
+            console.error("Media drop upload failed", e);
           } finally {
             setUploadingSafe(false);
           }
@@ -180,6 +277,18 @@ export function TiptapEditor({
       editor?.chain().focus().setImage({ src: url, alt: file.name }).run();
     } catch (e) {
       console.error("Image upload failed", e);
+    } finally {
+      setUploadingSafe(false);
+    }
+  };
+
+  const insertVideo = async (file: File) => {
+    try {
+      setUploadingSafe(true);
+      const url = await uploadVideoToSupabase(file);
+      editor?.chain().focus().setVideo({ src: url, title: file.name }).run();
+    } catch (e) {
+      console.error("Video upload failed", e);
     } finally {
       setUploadingSafe(false);
     }
@@ -251,6 +360,20 @@ export function TiptapEditor({
           disabled={!canUse}
           onClick={() => editor?.chain().focus().unsetLink().run()}
         />
+        <ToolbarButton
+          label="YouTube"
+          disabled={!canUse}
+          onClick={() => {
+            const url = window.prompt("YouTube URL", "https://www.youtube.com/watch?v=");
+            if (!url) return;
+            const embedUrl = toYouTubeEmbedUrl(url);
+            if (!embedUrl) {
+              window.alert("That doesn't look like a valid YouTube link.");
+              return;
+            }
+            editor?.chain().focus().setYoutubeVideo({ src: embedUrl, width: 640, height: 360 }).run();
+          }}
+        />
 
         <div className="ml-auto flex items-center gap-2">
           <input
@@ -259,19 +382,40 @@ export function TiptapEditor({
             accept="image/*"
             className="hidden"
             onChange={(e) => {
-              const file = e.target.files?.[0];
+              const file = e.currentTarget.files?.[0];
               if (!file) return;
-              insertImage(file);
+              void insertImage(file);
               e.currentTarget.value = "";
             }}
           />
+          <input
+            ref={videoInputRef}
+            type="file"
+            accept="video/*"
+            className="hidden"
+            onChange={(e) => {
+              const file = e.currentTarget.files?.[0];
+              if (!file) return;
+              void insertVideo(file);
+              e.currentTarget.value = "";
+            }}
+          />
+
           <button
             type="button"
             disabled={!editor || uploading}
             onClick={() => fileInputRef.current?.click()}
             className="rounded-md bg-primary px-3 py-1.5 text-sm font-medium text-primary-foreground disabled:opacity-50"
           >
-            {uploading ? "Uploading…" : "Insert image"}
+            {uploading ? "Uploading…" : "Add image"}
+          </button>
+          <button
+            type="button"
+            disabled={!editor || uploading}
+            onClick={() => videoInputRef.current?.click()}
+            className="rounded-md bg-primary px-3 py-1.5 text-sm font-medium text-primary-foreground disabled:opacity-50"
+          >
+            {uploading ? "Uploading…" : "Add video"}
           </button>
         </div>
       </div>
@@ -281,7 +425,7 @@ export function TiptapEditor({
       </div>
 
       <div className="border-t px-3 py-2 text-xs text-muted-foreground">
-        Tip: paste or drag & drop images directly into the editor.
+        Tip: paste or drag & drop images/videos directly into the editor.
       </div>
     </div>
   );

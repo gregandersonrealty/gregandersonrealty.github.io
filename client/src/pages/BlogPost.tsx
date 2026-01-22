@@ -136,7 +136,7 @@ export default function BlogPost() {
           </div>
 
           {/* Share */}
-          <div className="mt-12 pt-8 border-t border-border/50">
+          {/* <div className="mt-12 pt-8 border-t border-border/50">
             <div className="flex items-center gap-4">
               <span className="flex items-center gap-2 text-sm font-medium text-muted-foreground">
                 <Share2 className="w-4 h-4" />
@@ -163,7 +163,7 @@ export default function BlogPost() {
                 </button>
               </div>
             </div>
-          </div>
+          </div> */}
         </article>
 
         {/* Related Posts */}

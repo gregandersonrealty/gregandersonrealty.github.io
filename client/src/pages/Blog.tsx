@@ -49,7 +49,7 @@ export default function Blog() {
         </section>
 
         {/* Filters */}
-        <section className="py-8 border-b border-border/50 sticky top-20 bg-background/95 backdrop-blur-sm z-40">
+        <section className="py-4 md:py-8 border-b border-border/50 bg-background/95 backdrop-blur-sm md:sticky md:top-20 md:z-40">
           <div className="max-w-6xl mx-auto px-6 lg:px-8">
             <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6">
               <CategoryFilter

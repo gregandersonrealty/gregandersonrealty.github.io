@@ -1,9 +1,13 @@
 import { Link } from "wouter";
-import { ArrowRight, Play, Home as HomeIcon, TrendingUp, Award, Users, Quote, Heart, Shield, MessageCircle } from "lucide-react";
+import { useState } from "react";
+import { ArrowRight, Home as HomeIcon, TrendingUp, Award, Users, Heart, Shield, MessageCircle, Mail, Phone, MapPin } from "lucide-react";
 import { Navbar } from "@/components/Navbar";
 import { Footer } from "@/components/Footer";
 import { BlogCard } from "@/components/BlogCard";
 import { usePosts } from "@/lib/postsApi";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { useToast } from "@/hooks/use-toast";
+import { OFFICE } from "@/lib/office";
 
 const highlights = [
   { icon: HomeIcon, value: "3,000+", label: "Families Helped" },
@@ -34,6 +38,53 @@ export default function Home() {
   const { data, isLoading } = usePosts();
   const posts = data ?? [];
   const featuredPosts = posts.slice(0, 3);
+  const [connectOpen, setConnectOpen] = useState(false);
+  const [sending, setSending] = useState(false);
+  const [formName, setFormName] = useState("");
+  const [formContact, setFormContact] = useState("");
+  const [formMessage, setFormMessage] = useState("");
+  const { toast } = useToast();
+
+  async function submitContact(e: React.FormEvent) {
+    e.preventDefault();
+    if (!formMessage.trim()) {
+      toast({ title: "Message is required" });
+      return;
+    }
+
+    setSending(true);
+    try {
+      const res = await fetch("/api/contact", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          name: formName.trim(),
+          contact: formContact.trim(),
+          message: formMessage.trim(),
+        }),
+      });
+
+      if (!res.ok) {
+        const body = await res.json().catch(() => ({}));
+        throw new Error(body?.message || "Failed to send message");
+      }
+
+      toast({ title: "Message sent", description: "Thanks — I’ll get back to you soon." });
+      setFormName("");
+      setFormContact("");
+      setFormMessage("");
+      setConnectOpen(false);
+    } catch (err: any) {
+      toast({
+        title: "Couldn’t send message",
+        description:
+          err?.message ||
+          "If this keeps happening, email emmethoversten@gmail.com directly.",
+      });
+    } finally {
+      setSending(false);
+    }
+  }
 
   return (
     <div className="min-h-screen flex flex-col">
@@ -46,10 +97,10 @@ export default function Home() {
             <img
               src={`${import.meta.env.BASE_URL}wide_greg.jpg`}
               alt="Beautiful home in Carver County, Minnesota"
-              className="w-full h-full object-cover"
+              className="w-full h-full object-cover object-[center_38%]"
             />
             {/* Darken the right side of the image so text is readable when placed on the right */}
-            <div className="absolute inset-0 bg-gradient-to-l from-background/98 via-background/90 to-background/60" />
+            <div className="absolute inset-0 bg-gradient-to-l from-background/78 via-background/40 to-background/8" />
           </div>
 
           <div className="relative max-w-6xl mx-auto px-6 lg:px-8 py-6 md:py-10 lg:py-14 flex items-center min-h-[28vh] md:min-h-[32vh]">
@@ -59,24 +110,135 @@ export default function Home() {
                 Carver County's Trusted Realtor
               </p>
               <h1 className="font-display text-4xl md:text-5xl lg:text-6xl font-bold text-foreground leading-tight mb-2 w-full">
+                Hello I Am
+              </h1>
+              <h1 className="font-display text-4xl md:text-5xl lg:text-6xl font-bold text-foreground leading-tight mb-2 w-full">
                 Greg Anderson
               </h1>
-              <p className="text-lg text-muted-foreground leading-relaxed mb-4">
+              <p className="text-lg text-foreground/95 leading-relaxed mb-4 rounded-xl bg-background/45 backdrop-blur-sm px-4 py-3 shadow-sm">
                 I'm Greg Anderson—your neighbor, your advocate, and your guide through one of life's biggest decisions. Let's find the right home for your family, together.
               </p>
               <div className="flex flex-wrap gap-4 justify-end md:w-full">
-                <Link
-                  href="/about"
-                  className="inline-flex items-center gap-2 px-6 py-3.5 bg-destructive text-destructive-foreground rounded-lg font-medium hover:bg-destructive/90 transition-colors"
+                <button
+                  type="button"
+                  onClick={() => setConnectOpen(true)}
+                  className="inline-flex items-center gap-2 px-6 py-3.5 bg-destructive text-destructive-foreground rounded-lg font-medium hover:bg-destructive/90 transition-colors cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
                   data-testid="button-hero-connect"
                 >
                   Let's Connect
                   <ArrowRight className="w-4 h-4" />
-                </Link>
+                </button>
               </div>
             </div>
           </div>
         </section>
+
+        <Dialog open={connectOpen} onOpenChange={setConnectOpen}>
+          <DialogContent className="max-w-2xl">
+            <DialogHeader>
+              <DialogTitle>Let&apos;s Talk!</DialogTitle>
+              <DialogDescription>
+                Use one of the methods below to get in touch!
+              </DialogDescription>
+            </DialogHeader>
+
+            <div className="grid gap-6 md:grid-cols-2">
+              <div className="space-y-4">
+                <div className="rounded-xl border bg-secondary/20 p-4">
+                  <div className="flex items-start gap-3">
+                    <Phone className="w-5 h-5 text-primary mt-0.5" />
+                    <div>
+                      <div className="font-medium">Call/Text</div>
+                      <div className="space-y-1 text-sm">
+                        <a className="block text-primary hover:underline" href="tel:+16123866155">
+                          Mobile: (612) 386-6155
+                        </a>
+                        <a className="block text-primary hover:underline" href="tel:+19523686014">
+                          Direct: (952) 368-6014
+                        </a>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="rounded-xl border bg-secondary/20 p-4">
+                  <div className="flex items-start gap-3">
+                    <Mail className="w-5 h-5 text-primary mt-0.5" />
+                    <div>
+                      <div className="font-medium">Email</div>
+                      <a className="text-sm text-primary hover:underline" href="mailto:emmethoversten@gmail.com">
+                        emmethoversten@gmail.com
+                      </a>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="rounded-xl border bg-secondary/20 p-4">
+                  <div className="flex items-start gap-3">
+                    <MapPin className="w-5 h-5 text-primary mt-0.5" />
+                    <div>
+                      <div className="font-medium">Office</div>
+                      <div className="text-sm text-muted-foreground">
+                        {OFFICE.addressLines[0]}
+                        <br />
+                        {OFFICE.addressLines[1]}
+                      </div>
+                      <a
+                        className="mt-2 inline-flex text-sm text-primary hover:underline"
+                        href={OFFICE.googleMapsShareUrl || OFFICE.googleMapsQueryUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        data-testid="link-home-modal-office-maps"
+                      >
+                        View on Google Maps
+                      </a>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <form onSubmit={submitContact} className="space-y-3">
+                <div>
+                  <label className="block text-sm font-medium mb-1">Name</label>
+                  <input
+                    value={formName}
+                    onChange={(e) => setFormName(e.target.value)}
+                    className="w-full rounded-lg border bg-input px-3 py-2"
+                    placeholder="Your name"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium mb-1">Contact info</label>
+                  <input
+                    value={formContact}
+                    onChange={(e) => setFormContact(e.target.value)}
+                    className="w-full rounded-lg border bg-input px-3 py-2"
+                    placeholder="Email or phone"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium mb-1">Message</label>
+                  <textarea
+                    value={formMessage}
+                    onChange={(e) => setFormMessage(e.target.value)}
+                    className="w-full rounded-lg border bg-input px-3 py-2 min-h-[120px]"
+                    placeholder="Tell me what you're thinking…"
+                  />
+                </div>
+                <button
+                  type="submit"
+                  disabled={sending}
+                  className="w-full rounded-lg bg-primary px-4 py-2 font-medium text-primary-foreground disabled:opacity-50"
+                >
+                  {sending ? "Sending…" : "Send message"}
+                </button>
+                <p className="text-xs text-muted-foreground">
+                  This will email <span className="font-medium">emmethoversten@gmail.com</span>.
+                </p>
+              </form>
+            </div>
+          </DialogContent>
+        </Dialog>
 
 
         {/* Latest Content */}
@@ -186,26 +348,6 @@ export default function Home() {
                 </div>
               ))}
             </div>
-          </div>
-        </section>
-
-        {/* CTA Section */}
-        <section className="py-20 md:py-28 bg-primary text-primary-foreground border-t border-border/20 mt-2">
-          <div className="max-w-4xl mx-auto px-6 lg:px-8 text-center">
-            <h2 className="font-display text-3xl md:text-4xl font-semibold mb-6">
-              Ready to Take the Next Step?
-            </h2>
-            <p className="text-primary-foreground/80 text-lg mb-8 max-w-2xl mx-auto">
-              Whether you're just starting to think about it or ready to move forward, I'm here to help. No pressure, just a friendly conversation about your goals.
-            </p>
-            <Link
-              href="/about"
-              className="inline-flex items-center gap-2 px-8 py-4 bg-white text-primary rounded-lg font-semibold hover:bg-white/90 transition-colors"
-              data-testid="button-cta-connect"
-            >
-              Let's Connect
-              <ArrowRight className="w-4 h-4" />
-            </Link>
           </div>
         </section>
       </main>

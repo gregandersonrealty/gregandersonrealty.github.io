@@ -1,6 +1,7 @@
 import { Link, useLocation } from "wouter";
-import { Menu, X, Facebook, Instagram, Youtube, FileText, Linkedin } from "lucide-react";
+import { Menu, X, Facebook, Instagram, Youtube, Linkedin } from "lucide-react";
 import { useState } from "react";
+import { MediumIcon, SubstackIcon } from "@/components/icons/SocialIcons";
 
 function TikTok({ className }: { className?: string }) {
   return (
@@ -27,7 +28,8 @@ const socialLinks = [
   { icon: TikTok, href: "https://www.tiktok.com/@thehybridbroker", label: "TikTok" },
   { icon: Youtube, href: "https://www.youtube.com/@HelloIamGregAnderson", label: "YouTube" },
   { icon: Linkedin, href: "https://www.linkedin.com/in/gregoryranderson", label: "LinkedIn" },
-  { icon: FileText, href: "https://substack.com/@helloiamgreganderson", label: "Substack" },
+  { icon: MediumIcon, href: "https://medium.com/@thehybridbroker", label: "Medium" },
+  { icon: SubstackIcon, href: "https://substack.com/@helloiamgreganderson", label: "Substack" },
 ];
 
 export function Navbar() {

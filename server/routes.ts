@@ -4,6 +4,7 @@ import { storage } from "./storage";
 import { promises as fs } from "fs";
 import path from "path";
 import { execSync } from "child_process";
+import nodemailer from "nodemailer";
 
 export interface BlogPost {
   id: string;
@@ -73,6 +74,59 @@ export async function registerRoutes(
   httpServer: Server,
   app: Express
 ): Promise<Server> {
+  // Public: contact form submission (sends email)
+  app.post("/api/contact", async (req, res) => {
+    const name = typeof req.body?.name === "string" ? req.body.name.trim() : "";
+    const contact = typeof req.body?.contact === "string" ? req.body.contact.trim() : "";
+    const message = typeof req.body?.message === "string" ? req.body.message.trim() : "";
+
+    if (!message) {
+      return res.status(400).json({ message: "Message is required" });
+    }
+
+    const to = process.env.CONTACT_TO || "emmethoversten@gmail.com";
+    const from = process.env.CONTACT_FROM || process.env.SMTP_USER || to;
+
+    try {
+      const transporter = process.env.SMTP_URL
+        ? nodemailer.createTransport(process.env.SMTP_URL)
+        : nodemailer.createTransport({
+            host: process.env.SMTP_HOST,
+            port: process.env.SMTP_PORT ? Number(process.env.SMTP_PORT) : 587,
+            secure: process.env.SMTP_SECURE === "true",
+            auth: process.env.SMTP_USER
+              ? {
+                  user: process.env.SMTP_USER,
+                  pass: process.env.SMTP_PASS,
+                }
+              : undefined,
+          });
+
+      const subject = `New website message${name ? ` from ${name}` : ""}`;
+      const text = [
+        "New contact form submission",
+        "",
+        `Name: ${name || "(not provided)"}`,
+        `Contact: ${contact || "(not provided)"}`,
+        "",
+        "Message:",
+        message,
+      ].join("\n");
+
+      await transporter.sendMail({
+        to,
+        from,
+        subject,
+        text,
+      });
+
+      return res.json({ ok: true });
+    } catch (e: any) {
+      console.error("/api/contact failed:", e);
+      return res.status(500).json({ message: "Failed to send message" });
+    }
+  });
+
   // Public: get all posts
   app.get("/api/posts", async (_req, res) => {
     const posts = await loadPosts();

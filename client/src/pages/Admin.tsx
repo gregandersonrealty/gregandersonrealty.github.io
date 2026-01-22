@@ -124,7 +124,7 @@ export default function Admin() {
           <div className="mb-6">
             {!loggedIn ? (
               <div className="space-y-4 max-w-sm">
-                <h2 className="font-medium">Sign in to Supabase</h2>
+                <h2 className="font-medium">Sign in</h2>
                 <div className="space-y-2">
                   <label className="block text-sm font-medium">Email</label>
                   <input
