@@ -34,7 +34,7 @@ export async function fetchPosts(): Promise<BlogPost[]> {
     content: parseMaybeEditorJs(row.content),
     category: row.categories?.name || "Uncategorized",
     type: row.type || "article",
-    image: row.image || `${import.meta.env.BASE_URL}remax_logo.png`,
+    image: row.image ?? "",
     date: new Date(row.created_at).toLocaleDateString("en-US", {
       month: "short",
       day: "numeric",
@@ -53,7 +53,7 @@ export async function createPost(post: any) {
     content: post.content ?? "",
     category_id: post.category_id,
     type: post.type || "article",
-    image: post.image || `${import.meta.env.BASE_URL}remax_logo.png`,
+    image: post.image ?? null,
     read_time: post.readTime || "5 min read",
     published: true,
   });
@@ -71,7 +71,7 @@ export async function updatePost(id: string, post: any) {
       excerpt: post.excerpt,
       content: post.content,
       category_id: post.category_id,
-      image: post.image,
+      image: post.image ?? null,
       read_time: post.readTime,
     })
     .eq("id", id);

@@ -100,23 +100,25 @@ export default function BlogPost() {
           </header>
 
           {/* Featured Media */}
-          <div className="relative aspect-video rounded-xl overflow-hidden mb-10">
-            <img
-              src={post.image}
-              alt={post.title}
-              className="w-full h-full object-cover"
-            />
-            {post.type === "video" && (
-              <button
-                className="absolute inset-0 flex items-center justify-center bg-black/30 hover:bg-black/40 transition-colors group"
-                data-testid="button-play-video"
-              >
-                <div className="w-20 h-20 rounded-full bg-white/90 flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform">
-                  <Play className="w-8 h-8 text-primary ml-1" fill="currentColor" />
-                </div>
-              </button>
-            )}
-          </div>
+          {post.image ? (
+            <div className="relative aspect-video rounded-xl overflow-hidden mb-10">
+              <img
+                src={post.image}
+                alt={post.title}
+                className="w-full h-full object-cover"
+              />
+              {post.type === "video" && (
+                <button
+                  className="absolute inset-0 flex items-center justify-center bg-black/30 hover:bg-black/40 transition-colors group"
+                  data-testid="button-play-video"
+                >
+                  <div className="w-20 h-20 rounded-full bg-white/90 flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform">
+                    <Play className="w-8 h-8 text-primary ml-1" fill="currentColor" />
+                  </div>
+                </button>
+              )}
+            </div>
+          ) : null}
 
           {/* Article Content */}
           <div className="prose prose-lg max-w-none">

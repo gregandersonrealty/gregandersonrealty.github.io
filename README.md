@@ -31,6 +31,11 @@ The block editor uploads images directly to Supabase Storage from the browser.
 Security
 - ADMIN_TOKEN is a minimal approach. The Admin UI is not linked publicly; access the admin panel at `/admin` by URL and sign in with the token. For production, add proper authentication and HTTPS.
 
+Contact Form (Formspree)
+
+- The “Let’s Connect” popup submits to Formspree via `@formspree/react`.
+- Current Formspree form id is `mnjzlbko`.
+
 If you'd like, I can:
 - Add edit / preview features in the Admin UI.
 - Add server-side authentication (username/password + sessions) and an audit log.

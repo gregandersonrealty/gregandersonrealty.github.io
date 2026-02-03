@@ -12,7 +12,7 @@ export function CategoryFilter({ categories, activeCategory, onCategoryChange }:
     >
       <button
         onClick={() => onCategoryChange("all")}
-        className={`px-4 py-2 rounded-full text-sm font-medium transition-all ${
+        className={`px-4 py-2 rounded-full text-sm font-medium transition-all cursor-pointer ${
           activeCategory === "all"
             ? "bg-primary text-primary-foreground"
             : "bg-secondary text-secondary-foreground hover:bg-secondary/80"
@@ -25,7 +25,7 @@ export function CategoryFilter({ categories, activeCategory, onCategoryChange }:
         <button
           key={category}
           onClick={() => onCategoryChange(category)}
-          className={`px-4 py-2 rounded-full text-sm font-medium transition-all ${
+          className={`px-4 py-2 rounded-full text-sm font-medium transition-all cursor-pointer ${
             activeCategory === category
               ? "bg-primary text-primary-foreground"
               : "bg-secondary text-secondary-foreground hover:bg-secondary/80"

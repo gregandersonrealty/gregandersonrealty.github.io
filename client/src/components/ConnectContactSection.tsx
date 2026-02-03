@@ -1,5 +1,6 @@
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Mail, MapPin, Phone } from "lucide-react";
+import { useForm } from "@formspree/react";
 import { useToast } from "@/hooks/use-toast";
 import { OFFICE } from "@/lib/office";
 
@@ -9,6 +10,7 @@ type Props = {
   title?: string;
   description?: string;
   onSuccess?: () => void;
+  formId?: string;
   className?: string;
 };
 
@@ -19,51 +21,49 @@ export function ConnectContactSection({
   description = "Use one of the methods below to get in touch!",
   onSuccess,
   className,
+  formId = "mnjzlbko",
 }: Props) {
   const { toast } = useToast();
 
-  const [sending, setSending] = useState(false);
+  const [sent, setSent] = useState(false);
   const [formName, setFormName] = useState("");
   const [formContact, setFormContact] = useState("");
   const [formMessage, setFormMessage] = useState("");
 
+  const [state, handleSubmit] = useForm(formId);
+  const formActionUrl = `https://formspree.io/f/${formId}`;
+  const lastHadErrorRef = useRef(false);
+
+  useEffect(() => {
+    if (!state.succeeded) return;
+
+    setFormName("");
+    setFormContact("");
+    setFormMessage("");
+    setSent(true);
+    onSuccess?.();
+  }, [state.succeeded, onSuccess]);
+
+  useEffect(() => {
+    const hadError = Boolean(state.errors);
+    if (hadError && hadError !== lastHadErrorRef.current) {
+      toast({
+        title: "Couldn’t send message",
+        description: "Please double-check the form and try again.",
+      });
+    }
+    lastHadErrorRef.current = hadError;
+  }, [state.errors, toast]);
+
   async function submitContact(e: React.FormEvent) {
-    e.preventDefault();
     if (!formMessage.trim()) {
+      e.preventDefault();
       toast({ title: "Message is required" });
       return;
     }
 
-    setSending(true);
-    try {
-      const res = await fetch("/api/contact", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          name: formName.trim(),
-          contact: formContact.trim(),
-          message: formMessage.trim(),
-        }),
-      });
-
-      if (!res.ok) {
-        const body = await res.json().catch(() => ({}));
-        throw new Error(body?.message || "Failed to send message");
-      }
-
-      toast({ title: "Message sent", description: "Thanks — I’ll get back to you soon." });
-      setFormName("");
-      setFormContact("");
-      setFormMessage("");
-      onSuccess?.();
-    } catch (err: any) {
-      toast({
-        title: "Couldn’t send message",
-        description: err?.message || "If this keeps happening, email thehybridbroker@gmail.com directly.",
-      });
-    } finally {
-      setSending(false);
-    }
+    setSent(false);
+    await handleSubmit(e as any);
   }
 
   const content = (
@@ -129,10 +129,19 @@ export function ConnectContactSection({
             </div>
         </div>
 
-        <form onSubmit={submitContact} className="space-y-3">
+        <form action={formActionUrl} method="POST" onSubmit={submitContact} className="space-y-3">
+            <input
+              type="text"
+              name="_gotcha"
+              tabIndex={-1}
+              autoComplete="off"
+              className="hidden"
+              aria-hidden="true"
+            />
             <div>
               <label className="block text-sm font-medium mb-1">Name</label>
               <input
+                name="name"
                 value={formName}
                 onChange={(e) => setFormName(e.target.value)}
                 className="w-full rounded-lg border bg-input px-3 py-2"
@@ -142,6 +151,7 @@ export function ConnectContactSection({
             <div>
               <label className="block text-sm font-medium mb-1">Contact info</label>
               <input
+                name="email"
                 value={formContact}
                 onChange={(e) => setFormContact(e.target.value)}
                 className="w-full rounded-lg border bg-input px-3 py-2"
@@ -151,21 +161,31 @@ export function ConnectContactSection({
             <div>
               <label className="block text-sm font-medium mb-1">Message</label>
               <textarea
+                name="message"
                 value={formMessage}
                 onChange={(e) => setFormMessage(e.target.value)}
                 className="w-full rounded-lg border bg-input px-3 py-2 min-h-[120px]"
                 placeholder="Tell me what you’re thinking…"
+                required
               />
             </div>
             <button
               type="submit"
-              disabled={sending}
-              className="w-full rounded-lg bg-primary px-4 py-2 font-medium text-primary-foreground disabled:opacity-50"
+              disabled={state.submitting}
+              className="w-full rounded-lg bg-primary px-4 py-2 font-medium text-primary-foreground transition-colors hover:bg-primary/90 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              {sending ? "Sending…" : "Send message"}
+              {state.submitting ? "Sending…" : "Send message"}
             </button>
             <p className="text-xs text-muted-foreground">
-              This will email <span className="font-medium">thehybridbroker@gmail.com</span>.
+              {sent ? (
+                <>
+                  <span className="font-medium">Message sent</span>
+                </>
+              ) : (
+                <>
+                  This will email <span className="font-medium">thehybridbroker@gmail.com</span>.
+                </>
+              )}
             </p>
         </form>
       </div>

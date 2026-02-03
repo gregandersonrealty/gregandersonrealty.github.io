@@ -1,5 +1,19 @@
-import type { ReactNode } from "react";
+import type { ReactNode, CSSProperties } from "react";
 import type { JSONContent } from "@tiptap/react";
+
+function sanitizeSize(raw: unknown): string | null {
+  if (typeof raw !== "string") return null;
+  const v = raw.trim();
+  if (!v) return null;
+  if (/^\d{1,3}%$/.test(v)) return v;
+  if (/^\d{1,4}px$/.test(v)) return v;
+  return null;
+}
+
+function sanitizeFloat(raw: unknown): "left" | "right" | null {
+  if (raw === "left" || raw === "right") return raw;
+  return null;
+}
 
 function parseYouTubeTimeToSeconds(raw: string): number | null {
   const trimmed = raw.trim();
@@ -134,10 +148,29 @@ function renderNode(node: any, key: string): ReactNode {
       const src = typeof node?.attrs?.src === "string" ? node.attrs.src : "";
       const alt = typeof node?.attrs?.alt === "string" ? node.attrs.alt : "";
       const title = typeof node?.attrs?.title === "string" ? node.attrs.title : "";
+      const width = sanitizeSize(node?.attrs?.width);
+      const float = sanitizeFloat(node?.attrs?.float);
       if (!src) return null;
+
+      const figureStyle: CSSProperties = {};
+      if (width) figureStyle.width = width;
+      if (float) {
+        figureStyle.float = float;
+        figureStyle.margin = float === "left" ? "0.5rem 1.25rem 0.5rem 0" : "0.5rem 0 0.5rem 1.25rem";
+      }
+
+      const figureClassName =
+        "my-6" +
+        (!float && width && width !== "100%" ? " mx-auto" : "");
+
       return (
-        <figure key={key} className="my-6">
-          <img src={src} alt={alt || title || ""} className="w-full rounded-xl border" loading="lazy" />
+        <figure key={key} className={figureClassName} style={Object.keys(figureStyle).length ? figureStyle : undefined}>
+          <img
+            src={src}
+            alt={alt || title || ""}
+            className={"rounded-xl border " + (!float && (!width || width === "100%") ? "w-full" : "w-full")}
+            loading="lazy"
+          />
           {title ? <figcaption className="mt-2 text-sm text-muted-foreground">{title}</figcaption> : null}
         </figure>
       );

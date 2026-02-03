@@ -116,8 +116,8 @@ export default function Admin() {
               <p className="text-muted-foreground">Manage blog posts and categories. All changes update instantly.</p>
             </div>
             <div className="flex items-center gap-3">
-              {loggedIn && <Link href="/admin/add" className="px-4 py-2 rounded-lg bg-primary text-white font-medium">Add Post</Link>}
-              <Link href="/blog" className="px-4 py-2 rounded-lg border">View Blog</Link>
+              {loggedIn && <Link href="/admin/add" className="px-4 py-2 rounded-lg bg-primary text-white font-medium cursor-pointer">Add Post</Link>}
+              <Link href="/blog" className="px-4 py-2 rounded-lg border cursor-pointer">View Blog</Link>
             </div>
           </div>
 
@@ -145,7 +145,7 @@ export default function Admin() {
                     className="w-full px-3 py-2 rounded-lg border bg-input"
                   />
                 </div>
-                <button onClick={handleLogin} className="px-4 py-2 rounded-lg bg-primary text-white font-medium w-full">
+                <button onClick={handleLogin} className="px-4 py-2 rounded-lg bg-primary text-white font-medium w-full cursor-pointer">
                   Sign In
                 </button>
                 <p className="text-xs text-muted-foreground">
@@ -159,7 +159,7 @@ export default function Admin() {
                     <h2 className="font-medium">Logged in</h2>
                     <p className="text-sm text-muted-foreground">Ready to manage content</p>
                   </div>
-                  <button onClick={handleLogout} className="px-4 py-2 rounded-lg border">Log out</button>
+                  <button onClick={handleLogout} className="px-4 py-2 rounded-lg border cursor-pointer">Log out</button>
                 </div>
 
                 <div className="mt-6 space-y-2">
@@ -171,7 +171,7 @@ export default function Admin() {
                       placeholder="Category name"
                       className="w-full px-3 py-2 rounded-lg border bg-input"
                     />
-                    <button onClick={onAddCategory} className="px-3 py-2 rounded-lg bg-primary text-white">Add</button>
+                    <button onClick={onAddCategory} className="px-3 py-2 rounded-lg bg-primary text-white cursor-pointer">Add</button>
                   </div>
                 </div>
               </div>
@@ -195,8 +195,8 @@ export default function Admin() {
                         <div key={c} className="flex items-center gap-3 bg-card p-3 rounded">
                           <div className="flex-1">{c}</div>
                           <div className="flex gap-2">
-                            <button onClick={() => onRenameCategory(c)} className="px-2 py-1 rounded bg-secondary text-sm">Rename</button>
-                            <button onClick={() => onDeleteCategory(c)} className="px-2 py-1 rounded bg-destructive text-destructive-foreground text-sm">Delete</button>
+                            <button onClick={() => onRenameCategory(c)} className="px-2 py-1 rounded bg-secondary text-sm cursor-pointer">Rename</button>
+                            <button onClick={() => onDeleteCategory(c)} className="px-2 py-1 rounded bg-destructive text-destructive-foreground text-sm cursor-pointer">Delete</button>
                           </div>
                         </div>
                       ))}
@@ -211,7 +211,11 @@ export default function Admin() {
                   ) : (
                     posts.map((post) => (
                       <div key={post.id} className="flex items-center gap-4 p-4 border rounded-lg bg-card mb-2">
-                        <img src={post.image} alt={post.title} className="w-24 h-16 object-cover rounded" />
+                        {post.image ? (
+                          <img src={post.image} alt={post.title} className="w-24 h-16 object-cover rounded" />
+                        ) : (
+                          <div className="w-24 h-16 rounded bg-secondary/30" aria-hidden="true" />
+                        )}
                         <div className="flex-1">
                           <div className="flex items-center gap-3 mb-1">
                             <h3 className="font-medium">{post.title}</h3>
@@ -222,8 +226,8 @@ export default function Admin() {
                         <div className="text-xs text-muted-foreground text-right">
                           <div>{post.date}</div>
                           <div className="mt-3">
-                            <Link href={`/admin/edit/${post.id}`} className="px-3 py-1 rounded-lg border text-xs mr-2">Edit</Link>
-                            <button onClick={() => onDelete(post.id)} className="px-3 py-1 rounded-lg bg-destructive text-destructive-foreground text-xs">Delete</button>
+                            <Link href={`/admin/edit/${post.id}`} className="px-3 py-1 rounded-lg border text-xs mr-2 cursor-pointer">Edit</Link>
+                            <button onClick={() => onDelete(post.id)} className="px-3 py-1 rounded-lg bg-destructive text-destructive-foreground text-xs cursor-pointer">Delete</button>
                           </div>
                         </div>
                       </div>

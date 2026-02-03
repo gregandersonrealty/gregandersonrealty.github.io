@@ -1,6 +1,5 @@
-import { EditorContent, useEditor, type JSONContent } from "@tiptap/react";
+import { EditorContent, ReactNodeViewRenderer, useEditor, type JSONContent } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
-import Image from "@tiptap/extension-image";
 import Youtube from "@tiptap/extension-youtube";
 import Link from "@tiptap/extension-link";
 import Underline from "@tiptap/extension-underline";
@@ -8,6 +7,8 @@ import Placeholder from "@tiptap/extension-placeholder";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { supabase } from "@/lib/supabase";
 import { Video } from "@/lib/tiptapVideo";
+import { ResizableImage } from "@/lib/tiptapImage";
+import { ResizableImageNodeView } from "@/components/ResizableImageNodeView";
 
 const DEFAULT_BUCKET = import.meta.env.VITE_SUPABASE_BLOG_IMAGES_BUCKET || "blog-images";
 
@@ -132,7 +133,7 @@ function ToolbarButton({
       disabled={disabled}
       onClick={onClick}
       className={
-        "rounded-md border px-2 py-1 text-sm transition-colors " +
+        "rounded-md border px-2 py-1 text-sm transition-colors disabled:cursor-not-allowed cursor-pointer " +
         (active
           ? "bg-primary text-primary-foreground"
           : "bg-background hover:bg-secondary") +
@@ -178,7 +179,11 @@ export function TiptapEditor({
           class: "text-primary underline underline-offset-2",
         },
       }),
-      Image.configure({
+      ResizableImage.extend({
+        addNodeView() {
+          return ReactNodeViewRenderer(ResizableImageNodeView);
+        },
+      }).configure({
         inline: false,
         allowBase64: false,
       }),
@@ -216,7 +221,11 @@ export function TiptapEditor({
               editor?.chain().focus().setVideo({ src: url, title: video.name }).run();
             } else if (image) {
               const url = await uploadImageToSupabase(image);
-              editor?.chain().focus().setImage({ src: url }).run();
+              editor
+                ?.chain()
+                .focus()
+                .insertContent({ type: "image", attrs: { src: url, width: "100%" } })
+                .run();
             }
           } catch (e) {
             console.error("Media paste upload failed", e);
@@ -244,7 +253,11 @@ export function TiptapEditor({
               editor?.chain().focus().setVideo({ src: url, title: video.name }).run();
             } else if (image) {
               const url = await uploadImageToSupabase(image);
-              editor?.chain().focus().setImage({ src: url }).run();
+              editor
+                ?.chain()
+                .focus()
+                .insertContent({ type: "image", attrs: { src: url, width: "100%" } })
+                .run();
             }
           } catch (e) {
             console.error("Media drop upload failed", e);
@@ -274,7 +287,11 @@ export function TiptapEditor({
     try {
       setUploadingSafe(true);
       const url = await uploadImageToSupabase(file);
-      editor?.chain().focus().setImage({ src: url, alt: file.name }).run();
+      editor
+        ?.chain()
+        .focus()
+        .insertContent({ type: "image", attrs: { src: url, alt: file.name, width: "100%" } })
+        .run();
     } catch (e) {
       console.error("Image upload failed", e);
     } finally {
@@ -295,7 +312,7 @@ export function TiptapEditor({
   };
 
   return (
-    <div className="rounded-xl border bg-background">
+    <div className="rounded-xl border bg-background flex flex-col">
       <div className="flex flex-wrap items-center gap-2 border-b bg-secondary/20 px-3 py-2">
         <ToolbarButton
           label="B"
@@ -405,7 +422,7 @@ export function TiptapEditor({
             type="button"
             disabled={!editor || uploading}
             onClick={() => fileInputRef.current?.click()}
-            className="rounded-md bg-primary px-3 py-1.5 text-sm font-medium text-primary-foreground disabled:opacity-50"
+            className="rounded-md bg-primary px-3 py-1.5 text-sm font-medium text-primary-foreground disabled:opacity-50 cursor-pointer disabled:cursor-not-allowed"
           >
             {uploading ? "Uploading…" : "Add image"}
           </button>
@@ -413,19 +430,15 @@ export function TiptapEditor({
             type="button"
             disabled={!editor || uploading}
             onClick={() => videoInputRef.current?.click()}
-            className="rounded-md bg-primary px-3 py-1.5 text-sm font-medium text-primary-foreground disabled:opacity-50"
+            className="rounded-md bg-primary px-3 py-1.5 text-sm font-medium text-primary-foreground disabled:opacity-50 cursor-pointer disabled:cursor-not-allowed"
           >
             {uploading ? "Uploading…" : "Add video"}
           </button>
         </div>
       </div>
 
-      <div className="bg-background">
+      <div className="bg-background overflow-y-auto max-h-[60vh]">
         <EditorContent editor={editor} />
-      </div>
-
-      <div className="border-t px-3 py-2 text-xs text-muted-foreground">
-        Tip: paste or drag & drop images/videos directly into the editor.
       </div>
     </div>
   );

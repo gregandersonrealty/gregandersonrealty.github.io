@@ -28,11 +28,15 @@ export function BlogCard({ post, featured = false }: BlogCardProps) {
         }`}
       >
         <div className={`relative overflow-hidden ${featured ? "aspect-[4/3] md:aspect-auto" : "aspect-[16/10]"}`}>
-          <img
-            src={post.image}
-            alt={post.title}
-            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-          />
+          {post.image ? (
+            <img
+              src={post.image}
+              alt={post.title}
+              className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+            />
+          ) : (
+            <div className="w-full h-full bg-secondary/30" aria-hidden="true" />
+          )}
           {post.type === "video" && (
             <div className="absolute inset-0 flex items-center justify-center bg-black/20">
               <div className="w-14 h-14 rounded-full bg-white/90 flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform">

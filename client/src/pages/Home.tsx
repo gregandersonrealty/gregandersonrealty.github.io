@@ -34,7 +34,7 @@ const whyChooseMe = [
 ];
 
 export default function Home() {
-  const { data, isLoading } = usePosts();
+  const { data } = usePosts();
   const posts = data ?? [];
   const featuredPosts = posts.slice(0, 3);
   const [connectOpen, setConnectOpen] = useState(false);
@@ -56,26 +56,26 @@ export default function Home() {
             <div className="absolute inset-0 bg-gradient-to-l from-background/78 via-background/40 to-background/8" />
           </div>
 
-          <div className="relative max-w-6xl mx-auto px-6 lg:px-8 py-6 md:py-10 lg:py-14 flex items-center min-h-[28vh] md:min-h-[32vh]">
+          <div className="relative max-w-6xl mx-auto px-6 lg:px-8 py-1 md:py-2 lg:py-3 flex items-center min-h-[7vh] md:min-h-[9vh]">
             {/* Right-aligned on all sizes */}
             <div className="w-full md:max-w-md animate-fade-up ml-auto text-right">
-              <p className="text-primary font-medium tracking-wide mb-3">
+              <p className="text-primary font-medium tracking-wide mb-2">
                 Carver County's Trusted Realtor
               </p>
-              <h1 className="font-display text-4xl md:text-5xl lg:text-6xl font-bold text-foreground leading-tight mb-2 w-full">
+              <h1 className="font-display text-3xl md:text-4xl lg:text-5xl font-bold text-foreground leading-tight mb-1 w-full">
                 Hello I Am
               </h1>
-              <h1 className="font-display text-4xl md:text-5xl lg:text-6xl font-bold text-foreground leading-tight mb-2 w-full">
+              <h1 className="font-display text-3xl md:text-4xl lg:text-5xl font-bold text-foreground leading-tight mb-2 w-full">
                 Greg Anderson
               </h1>
-              <p className="text-lg text-foreground/95 leading-relaxed mb-4 rounded-xl bg-background/45 backdrop-blur-sm px-4 py-3 shadow-sm">
+              <p className="text-base md:text-lg text-foreground/95 leading-relaxed mb-2 rounded-xl bg-background/45 backdrop-blur-sm px-4 py-3 shadow-sm">
                 I'm Greg Anderson—your neighbor, your advocate, and your guide through one of life's biggest decisions. Let's find the right home for your family, together.
               </p>
               <div className="flex flex-wrap gap-4 justify-end md:w-full">
                 <button
                   type="button"
                   onClick={() => setConnectOpen(true)}
-                  className="inline-flex items-center gap-2 px-6 py-3.5 bg-destructive text-destructive-foreground rounded-lg font-medium hover:bg-destructive/90 transition-colors cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+                  className="inline-flex items-center gap-2 px-5 py-3 bg-destructive text-destructive-foreground rounded-lg font-medium hover:bg-destructive/90 transition-colors cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
                   data-testid="button-hero-connect"
                 >
                   Let's Connect
@@ -95,17 +95,19 @@ export default function Home() {
               </DialogDescription>
             </DialogHeader>
 
-            <ConnectContactSection
-              variant="modal"
-              showHeading={false}
-              onSuccess={() => setConnectOpen(false)}
-            />
+            <div data-connect-contact>
+              <ConnectContactSection variant="modal" showHeading={false} />
+            </div>
+
+            <style>{`
+              [data-connect-contact] button[type="submit"] { cursor: pointer; }
+            `}</style>
           </DialogContent>
         </Dialog>
 
 
         {/* Latest Content */}
-        <section className="py-20 md:py-28">
+        <section className="py-10 md:py-12">
           <div className="max-w-6xl mx-auto px-6 lg:px-8">
             <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-4 mb-12">
               <div>

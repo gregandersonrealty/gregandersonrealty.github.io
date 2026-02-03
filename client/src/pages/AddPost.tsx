@@ -22,6 +22,7 @@ export default function AddPost() {
   const [imageUrl, setImageUrl] = useState("");
   const [imageFileName, setImageFileName] = useState("");
   const [imageData, setImageData] = useState<string | null>(null);
+  const [featuredImageMode, setFeaturedImageMode] = useState<"upload" | "link">("upload");
   const { toast } = useToast();
   const [, setLocation] = useLocation();
   const queryClient = useQueryClient();
@@ -71,6 +72,7 @@ export default function AddPost() {
         setCategoryId(data.category_id || "");
         setType(data.type || "article");
         setImageUrl(data.image || "");
+        setFeaturedImageMode(!data.image ? "upload" : String(data.image).startsWith("data:") ? "upload" : "link");
         const rich = coerceToRichContent(data.content);
         if (rich.kind === "tiptap") setDoc(rich.doc);
         else setDoc({ type: "doc", content: [{ type: "paragraph" }] });
@@ -108,9 +110,17 @@ export default function AddPost() {
     try {
       const data = await readFileAsDataURL(file);
       setImageData(data);
+      setImageUrl("");
+      setFeaturedImageMode("upload");
     } catch (err) {
       // ignore
     }
+  }
+
+  function clearFeaturedImage() {
+    setImageFileName("");
+    setImageData(null);
+    setImageUrl("");
   }
 
   function computeReadTime(text: string) {
@@ -142,7 +152,7 @@ export default function AddPost() {
       return;
     }
 
-    const image = imageData || imageUrl || `${import.meta.env.BASE_URL}remax_logo.png`;
+    const image = imageData || imageUrl || null;
     const bodyText = extractPlainTextFromRichContent(richContent);
     const readTime = type === "video" ? "5 min watch" : computeReadTime(bodyText || excerpt);
 
@@ -244,14 +254,14 @@ export default function AddPost() {
                   <button
                     type="button"
                     onClick={() => setLocation("/blog")}
-                    className="rounded-lg border px-4 py-2"
+                    className="rounded-lg border px-4 py-2 cursor-pointer"
                   >
                     Cancel
                   </button>
                   <button
                     type="submit"
                     disabled={loading || editorUploading}
-                    className="rounded-lg bg-primary px-5 py-2 font-medium text-primary-foreground disabled:opacity-50"
+                    className="rounded-lg bg-primary px-5 py-2 font-medium text-primary-foreground disabled:opacity-50 cursor-pointer disabled:cursor-not-allowed"
                   >
                     {loading ? (isEditing ? "Saving…" : "Publishing…") : isEditing ? "Save" : "Publish"}
                   </button>
@@ -270,7 +280,7 @@ export default function AddPost() {
                       <select
                         value={categoryId}
                         onChange={(e) => setCategoryId(e.target.value)}
-                        className="w-full rounded-lg border bg-input px-3 py-2"
+                        className="w-full rounded-lg border bg-input px-3 py-2 cursor-pointer"
                       >
                         <option value="">-- Select Category --</option>
                         {categoriesWithIds.map((c) => (
@@ -286,7 +296,7 @@ export default function AddPost() {
                       <select
                         value={type}
                         onChange={(e) => setType(e.target.value)}
-                        className="w-full rounded-lg border bg-input px-3 py-2"
+                        className="w-full rounded-lg border bg-input px-3 py-2 cursor-pointer"
                       >
                         <option value="article">Article</option>
                         <option value="video">Video</option>
@@ -299,28 +309,73 @@ export default function AddPost() {
                 <div className="rounded-xl border bg-background p-4">
                   <h2 className="text-sm font-semibold mb-3">Featured image</h2>
 
-                  <div className="space-y-3">
+                  <div className="space-y-4">
                     <div>
-                      <label className="block text-sm font-medium mb-1">Upload file</label>
-                      <input type="file" accept="image/*" onChange={onFileChange} className="w-full" />
-                      {imageFileName ? (
-                        <div className="text-xs text-muted-foreground mt-1">Using: {imageFileName}</div>
-                      ) : null}
+                      <label className="block text-sm font-medium mb-1">How would you like to add it?</label>
+                      <select
+                        value={featuredImageMode}
+                        onChange={(e) => setFeaturedImageMode(e.target.value as any)}
+                        className="w-full rounded-lg border bg-input px-3 py-2 cursor-pointer"
+                      >
+                        <option value="upload">Upload a photo</option>
+                        <option value="link">Use a link</option>
+                      </select>
                     </div>
 
-                    <div>
-                      <label className="block text-sm font-medium mb-1">Or image URL</label>
-                      <input
-                        value={imageUrl}
-                        onChange={(e) => setImageUrl(e.target.value)}
-                        placeholder="https://…"
-                        className="w-full rounded-lg border bg-input px-3 py-2"
-                      />
-                    </div>
+                    {featuredImageMode === "upload" ? (
+                      <div className="space-y-2">
+                        <label className="block text-sm font-medium">Upload a photo</label>
+                        <div className="flex items-center gap-3">
+                          <label className="inline-flex items-center justify-center rounded-lg border px-4 py-2 text-sm font-medium bg-background hover:bg-secondary cursor-pointer">
+                            Choose photo
+                            <input
+                              type="file"
+                              accept="image/*"
+                              onChange={onFileChange}
+                              className="hidden"
+                            />
+                          </label>
+                          {imageFileName ? (
+                            <div className="text-xs text-muted-foreground">Selected: {imageFileName}</div>
+                          ) : (
+                            <div className="text-xs text-muted-foreground">JPG, PNG, or WebP</div>
+                          )}
+                        </div>
+                      </div>
+                    ) : (
+                      <div className="space-y-2">
+                        <label className="block text-sm font-medium">Paste an image link</label>
+                        <input
+                          value={imageUrl}
+                          onChange={(e) => {
+                            setImageUrl(e.target.value);
+                            if (e.target.value.trim()) setImageData(null);
+                          }}
+                          placeholder="Paste an image URL…"
+                          className="w-full rounded-lg border bg-input px-3 py-2"
+                        />
+                        <p className="text-xs text-muted-foreground">Tip: right-click an image online and copy image address.</p>
+                      </div>
+                    )}
 
-                    <div className="rounded-lg border bg-secondary/20 p-3 text-xs text-muted-foreground">
-                      The featured image shows on the blog card and top of the post.
-                    </div>
+                    {(imageData || imageUrl) ? (
+                      <div className="space-y-2">
+                        <div className="rounded-lg border overflow-hidden bg-background">
+                          <img
+                            src={imageData || imageUrl}
+                            alt="Featured preview"
+                            className="w-full h-40 object-cover"
+                          />
+                        </div>
+                        <button
+                          type="button"
+                          onClick={clearFeaturedImage}
+                          className="w-full rounded-lg border px-4 py-2 text-sm font-medium hover:bg-secondary cursor-pointer"
+                        >
+                          Remove featured image
+                        </button>
+                      </div>
+                    ) : null}
                   </div>
                 </div>
               </div>
