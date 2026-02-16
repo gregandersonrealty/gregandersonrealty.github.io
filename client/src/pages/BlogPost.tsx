@@ -2,9 +2,9 @@ import { useParams, Link } from "wouter";
 import { Navbar } from "@/components/Navbar";
 import { Footer } from "@/components/Footer";
 import { BlogCard } from "@/components/BlogCard";
-import { ArrowLeft, Calendar, Clock, Play, Share2, Facebook, Twitter, Linkedin } from "lucide-react";
+import { ArrowLeft, Calendar, Clock, Play } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
-import { usePosts } from "@/lib/postsApi";
+import { usePostPreviews, usePost } from "@/lib/postsApi";
 import { EditorJsRenderer } from "@/components/EditorJsRenderer";
 import { coerceToEditorJsOutput } from "@/lib/editorjs";
 import { coerceToRichContent } from "@/lib/tiptap";
@@ -12,12 +12,15 @@ import { TiptapRenderer } from "@/components/TiptapRenderer";
 
 export default function BlogPost() {
   const { id } = useParams<{ id: string }>();
-  const { data: posts = [], isLoading, isError } = usePosts();
+  
+  // Fetch the single post with full content and image
+  const { data: post, isLoading: postLoading, isError: postError } = usePost(id || "");
+  
+  // Fetch related posts (just previews, no content)
+  const { data: allPosts = [] } = usePostPreviews();
+  const relatedPosts = allPosts.filter((p) => p.id !== id && p.category === post?.category).slice(0, 2);
 
-  const post = posts.find((p) => p.id === id);
-  const relatedPosts = posts.filter((p) => p.id !== id && p.category === post?.category).slice(0, 2);
-
-  if (isLoading) {
+  if (postLoading) {
     return (
       <div className="min-h-screen flex flex-col">
         <Navbar />
@@ -27,7 +30,7 @@ export default function BlogPost() {
     );
   }
 
-  if (isError || !post) {
+  if (postError || !post) {
     return (
       <div className="min-h-screen flex flex-col">
         <Navbar />
@@ -100,7 +103,7 @@ export default function BlogPost() {
           </header>
 
           {/* Featured Media */}
-          {post.image ? (
+          {post.image && post.image !== "/remax_logo.png" ? (
             <div className="relative aspect-video rounded-xl overflow-hidden mb-10">
               <img
                 src={post.image}

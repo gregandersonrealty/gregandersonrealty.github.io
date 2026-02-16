@@ -3,15 +3,23 @@ import { Navbar } from "@/components/Navbar";
 import { Footer } from "@/components/Footer";
 import { BlogCard } from "@/components/BlogCard";
 import { useCategories } from "@/lib/categoriesApi";
-import { Search } from "lucide-react";
-import { usePosts } from "@/lib/postsApi";
+import { Search, ChevronLeft, ChevronRight } from "lucide-react";
+import { usePostPreviews, usePostCount } from "@/lib/postsApi";
+
+const POSTS_PER_PAGE = 9;
 
 export default function Blog() {
   const [activeCategory, setActiveCategory] = useState("all");
   const [searchQuery, setSearchQuery] = useState("");
+  const [currentPage, setCurrentPage] = useState(1);
 
-  const { data: posts = [], isLoading, isError } = usePosts();
+  // Fetch posts with pagination
+  const offset = (currentPage - 1) * POSTS_PER_PAGE;
+  const { data: posts = [], isLoading, isError } = usePostPreviews(POSTS_PER_PAGE, offset);
+  const { data: totalCount = 0 } = usePostCount();
   const { data: categories = [] } = useCategories();
+
+  // Filter posts by category and search
   const filteredPosts = useMemo(() => {
     return posts.filter((post) => {
       const matchesCategory = activeCategory === "all" || post.category === activeCategory;
@@ -25,6 +33,22 @@ export default function Blog() {
 
   const featuredPost = filteredPosts[0];
   const remainingPosts = filteredPosts.slice(1);
+
+  // Calculate total pages (rough estimate when filtering)
+  const totalPages = Math.ceil(totalCount / POSTS_PER_PAGE);
+  const hasNextPage = currentPage < totalPages;
+  const hasPrevPage = currentPage > 1;
+
+  // Reset to page 1 when filters change
+  const handleCategoryChange = (category: string) => {
+    setActiveCategory(category);
+    setCurrentPage(1);
+  };
+
+  const handleSearchChange = (query: string) => {
+    setSearchQuery(query);
+    setCurrentPage(1);
+  };
 
   return (
     <div className="min-h-screen flex flex-col">
@@ -47,7 +71,7 @@ export default function Blog() {
                     type="search"
                     placeholder="Search posts…"
                     value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
+                    onChange={(e) => handleSearchChange(e.target.value)}
                     className="w-full pl-10 pr-4 py-2.5 bg-background border border-border rounded-lg text-sm placeholder:text-muted-foreground shadow-sm focus:outline-none focus:ring-2 focus:ring-primary/25"
                     data-testid="input-search"
                   />
@@ -56,7 +80,7 @@ export default function Blog() {
                 <div className="w-full md:w-64">
                   <select
                     value={activeCategory}
-                    onChange={(e) => setActiveCategory(e.target.value)}
+                    onChange={(e) => handleCategoryChange(e.target.value)}
                     className="w-full rounded-lg border border-border bg-background px-3 py-2.5 text-sm cursor-pointer shadow-sm focus:outline-none focus:ring-2 focus:ring-primary/25"
                     data-testid="select-category"
                   >
@@ -87,6 +111,7 @@ export default function Blog() {
                   onClick={() => {
                     setActiveCategory("all");
                     setSearchQuery("");
+                    setCurrentPage(1);
                   }}
                   className="mt-4 text-primary font-medium hover:underline cursor-pointer"
                   data-testid="button-clear-filters"
@@ -109,6 +134,35 @@ export default function Blog() {
                     {remainingPosts.map((post) => (
                       <BlogCard key={post.id} post={post} />
                     ))}
+                  </div>
+                )}
+
+                {/* Pagination */}
+                {(hasNextPage || hasPrevPage) && (
+                  <div className="flex items-center justify-center gap-4 mt-12">
+                    <button
+                      onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+                      disabled={!hasPrevPage}
+                      className="inline-flex items-center gap-2 px-4 py-2 rounded-lg border border-border bg-background hover:bg-secondary disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                      data-testid="button-prev-page"
+                    >
+                      <ChevronLeft className="w-4 h-4" />
+                      Previous
+                    </button>
+
+                    <span className="text-sm text-muted-foreground">
+                      Page {currentPage} of {totalPages}
+                    </span>
+
+                    <button
+                      onClick={() => setCurrentPage(p => p + 1)}
+                      disabled={!hasNextPage}
+                      className="inline-flex items-center gap-2 px-4 py-2 rounded-lg border border-border bg-background hover:bg-secondary disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                      data-testid="button-next-page"
+                    >
+                      Next
+                      <ChevronRight className="w-4 h-4" />
+                    </button>
                   </div>
                 )}
               </>

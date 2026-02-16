@@ -4,7 +4,7 @@ import { ArrowRight, Home as HomeIcon, TrendingUp, Award, Users, Heart, Shield, 
 import { Navbar } from "@/components/Navbar";
 import { Footer } from "@/components/Footer";
 import { BlogCard } from "@/components/BlogCard";
-import { usePosts } from "@/lib/postsApi";
+import { usePostPreviews } from "@/lib/postsApi";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { ConnectContactSection } from "@/components/ConnectContactSection";
 
@@ -34,9 +34,8 @@ const whyChooseMe = [
 ];
 
 export default function Home() {
-  const { data } = usePosts();
-  const posts = data ?? [];
-  const featuredPosts = posts.slice(0, 3);
+  // Only fetch 3 posts for the home page
+  const { data: posts = [] } = usePostPreviews(3);
   const [connectOpen, setConnectOpen] = useState(false);
 
   return (
@@ -127,7 +126,7 @@ export default function Home() {
             </div>
 
             <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-              {featuredPosts.map((post) => (
+              {posts.map((post) => (
                 <BlogCard key={post.id} post={post} />
               ))}
             </div>

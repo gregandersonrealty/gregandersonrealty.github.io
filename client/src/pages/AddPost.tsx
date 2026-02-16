@@ -21,8 +21,10 @@ export default function AddPost() {
   const [type, setType] = useState("article");
   const [imageUrl, setImageUrl] = useState("");
   const [imageFileName, setImageFileName] = useState("");
-  const [imageData, setImageData] = useState<string | null>(null);
+  const [imageFile, setImageFile] = useState<File | null>(null);
+  const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [featuredImageMode, setFeaturedImageMode] = useState<"upload" | "link">("upload");
+  const [uploadingImage, setUploadingImage] = useState(false);
   const { toast } = useToast();
   const [, setLocation] = useLocation();
   const queryClient = useQueryClient();
@@ -71,8 +73,21 @@ export default function AddPost() {
         setExcerpt(data.excerpt || "");
         setCategoryId(data.category_id || "");
         setType(data.type || "article");
-        setImageUrl(data.image || "");
-        setFeaturedImageMode(!data.image ? "upload" : String(data.image).startsWith("data:") ? "upload" : "link");
+        
+        // Set existing image
+        if (data.image) {
+          // Check if it's already a URL (not base64)
+          if (data.image.startsWith('http')) {
+            setImageUrl(data.image);
+            setImagePreview(data.image);
+            setFeaturedImageMode("link");
+          } else {
+            // If it's still base64 (old data), show it as preview
+            setImagePreview(data.image);
+            setFeaturedImageMode("upload");
+          }
+        }
+        
         const rich = coerceToRichContent(data.content);
         if (rich.kind === "tiptap") setDoc(rich.doc);
         else setDoc({ type: "doc", content: [{ type: "paragraph" }] });
@@ -94,32 +109,28 @@ export default function AddPost() {
     }
   }, [categoriesWithIds, categoryId, isEditing]);
 
-  function readFileAsDataURL(file: File): Promise<string> {
-    return new Promise((resolve, reject) => {
-      const reader = new FileReader();
-      reader.onload = () => resolve(String(reader.result));
-      reader.onerror = reject;
-      reader.readAsDataURL(file);
-    });
-  }
-
   async function onFileChange(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
     if (!file) return;
+    
     setImageFileName(file.name);
-    try {
-      const data = await readFileAsDataURL(file);
-      setImageData(data);
-      setImageUrl("");
-      setFeaturedImageMode("upload");
-    } catch (err) {
-      // ignore
-    }
+    setImageFile(file);
+    
+    // Create preview
+    const reader = new FileReader();
+    reader.onload = () => {
+      setImagePreview(String(reader.result));
+    };
+    reader.readAsDataURL(file);
+    
+    setImageUrl("");
+    setFeaturedImageMode("upload");
   }
 
   function clearFeaturedImage() {
     setImageFileName("");
-    setImageData(null);
+    setImageFile(null);
+    setImagePreview(null);
     setImageUrl("");
   }
 
@@ -127,6 +138,31 @@ export default function AddPost() {
     const words = text.trim().split(/\s+/).filter(Boolean).length;
     const minutes = Math.max(1, Math.ceil(words / 200));
     return `${minutes} min read`;
+  }
+
+  async function uploadImageToStorage(file: File): Promise<string> {
+    // Generate unique filename
+    const fileExt = file.name.split('.').pop();
+    const fileName = `${Date.now()}-${Math.random().toString(36).substring(7)}.${fileExt}`;
+    
+    // Upload to Supabase Storage
+    const { data, error } = await supabase.storage
+      .from('blog-images')
+      .upload(fileName, file, {
+        contentType: file.type,
+        upsert: false,
+      });
+
+    if (error) {
+      throw new Error(`Failed to upload image: ${error.message}`);
+    }
+
+    // Get public URL
+    const { data: { publicUrl } } = supabase.storage
+      .from('blog-images')
+      .getPublicUrl(fileName);
+
+    return publicUrl;
   }
 
   async function onSubmit(e: React.FormEvent) {
@@ -152,12 +188,26 @@ export default function AddPost() {
       return;
     }
 
-    const image = imageData || imageUrl || null;
     const bodyText = extractPlainTextFromRichContent(richContent);
     const readTime = type === "video" ? "5 min watch" : computeReadTime(bodyText || excerpt);
 
     setLoading(true);
+    setUploadingImage(true);
+    
     try {
+      let finalImageUrl = imageUrl; // Use URL if provided
+      
+      // If user uploaded a file, upload it to storage
+      if (imageFile && featuredImageMode === "upload") {
+        try {
+          finalImageUrl = await uploadImageToStorage(imageFile);
+          toast({ title: "Image uploaded", description: "Featured image uploaded successfully!" });
+        } catch (err: any) {
+          toast({ title: "Image upload failed", description: err.message, variant: "destructive" });
+          return;
+        }
+      }
+
       if (isEditing && postId) {
         await updatePost(postId, {
           title: title.trim(),
@@ -165,7 +215,7 @@ export default function AddPost() {
           content: richContent,
           category_id: categoryId,
           type,
-          image,
+          image: finalImageUrl || null,
           readTime,
         });
       } else {
@@ -175,17 +225,20 @@ export default function AddPost() {
           content: richContent,
           category_id: categoryId,
           type,
-          image,
+          image: finalImageUrl || null,
           readTime,
         });
       }
+      
       queryClient.invalidateQueries({ queryKey: ["posts"] });
+      queryClient.invalidateQueries({ queryKey: ["post-previews"] });
       toast({ title: isEditing ? "Post updated" : "Post created", description: `"${title}" has been saved.` });
       setLocation("/blog");
     } catch (err: any) {
-      toast({ title: isEditing ? "Failed to update post" : "Failed to create post", description: err.message });
+      toast({ title: isEditing ? "Failed to update post" : "Failed to create post", description: err.message, variant: "destructive" });
     } finally {
       setLoading(false);
+      setUploadingImage(false);
     }
   }
 
@@ -260,7 +313,7 @@ export default function AddPost() {
                   </button>
                   <button
                     type="submit"
-                    disabled={loading || editorUploading}
+                    disabled={loading || editorUploading || uploadingImage}
                     className="rounded-lg bg-primary px-5 py-2 font-medium text-primary-foreground disabled:opacity-50 cursor-pointer disabled:cursor-not-allowed"
                   >
                     {loading ? (isEditing ? "Saving…" : "Publishing…") : isEditing ? "Save" : "Publish"}
@@ -341,6 +394,9 @@ export default function AddPost() {
                             <div className="text-xs text-muted-foreground">JPG, PNG, or WebP</div>
                           )}
                         </div>
+                        <p className="text-xs text-muted-foreground">
+                          ✨ Images will be uploaded to Supabase Storage when you publish
+                        </p>
                       </div>
                     ) : (
                       <div className="space-y-2">
@@ -349,7 +405,10 @@ export default function AddPost() {
                           value={imageUrl}
                           onChange={(e) => {
                             setImageUrl(e.target.value);
-                            if (e.target.value.trim()) setImageData(null);
+                            if (e.target.value.trim()) {
+                              setImageFile(null);
+                              setImagePreview(e.target.value);
+                            }
                           }}
                           placeholder="Paste an image URL…"
                           className="w-full rounded-lg border bg-input px-3 py-2"
@@ -358,11 +417,11 @@ export default function AddPost() {
                       </div>
                     )}
 
-                    {(imageData || imageUrl) ? (
+                    {imagePreview ? (
                       <div className="space-y-2">
                         <div className="rounded-lg border overflow-hidden bg-background">
                           <img
-                            src={imageData || imageUrl}
+                            src={imagePreview}
                             alt="Featured preview"
                             className="w-full h-40 object-cover"
                           />
