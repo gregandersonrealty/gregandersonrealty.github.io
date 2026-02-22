@@ -1,45 +1,66 @@
-Admin-managed Blog Posts
+# 🏡 Carver County Real Estate Platform
 
-This project supports an admin-managed blog where creating, editing, and deleting posts via the Admin UI will update `server/data/posts.json` and attempt to commit/push the change to the repo (so the site updates for everyone).
+A modern, data-driven real estate website focused on hyperlocal market insights, long-form blog content, and community-driven housing analysis for Carver County, Minnesota.
 
-Quick Start (local)
+This platform combines high-performance frontend delivery with a structured Supabase backend to manage blog posts, categories, and market content.
 
-1. Start the server with an ADMIN_TOKEN (used to authenticate admin actions):
-   - Windows PowerShell: $env:ADMIN_TOKEN='your-secret'; npm run dev
-   - macOS/Linux: export ADMIN_TOKEN='your-secret' && npm run dev
+---
 
-2. Open the site (default port 5000) and go to /admin. Paste the same token into the Admin token field, then click Add Post.
+## 🚀 Tech Stack
 
-Notes
-- The server will try to commit and push `server/data/posts.json` and `server/data/categories.json`. You must configure git credentials on the server (SSH key or remote with token) for pushes to succeed.
-- If the git push fails the change is still saved locally and the API will return `pushed: false`.
+### Frontend
+- **Next.js** – React framework for SSR/SSG and performance optimization  
+- **React** – Component-based UI architecture  
+- **TypeScript** – Type safety and maintainability  
+- **Tailwind CSS** – Utility-first styling  
+- **Responsive Design** – Optimized for desktop, tablet, and mobile  
 
-Editor.js Image Uploads (Supabase Storage)
+### Backend / Infrastructure
+- **Supabase**
+  - PostgreSQL database
+  - REST API via PostgREST
+  - Row Level Security (RLS)
+  - Foreign key relationships
+  - Indexed queries for performance
 
-The block editor uploads images directly to Supabase Storage from the browser.
+- **PostgreSQL**
+  - UUID primary keys
+  - Foreign key constraints
+  - Indexed composite queries
+  - Structured relational schema
 
-1) Create a bucket
-- Default bucket name is `blog-images`.
-- If your bucket uses a different name, set `VITE_SUPABASE_BLOG_IMAGES_BUCKET` in `.env.local` (and in GitHub Secrets for deploys).
+### Hosting & Deployment
+- Hosted frontend (e.g., Vercel or similar platform)
+- Supabase managed backend
+- CDN-backed image delivery
 
-2) Make images readable
-- The app currently uses public URLs (`getPublicUrl`). Ensure the bucket is public, or add a Storage policy to allow public `select` on that bucket.
+---
 
-3) Allow uploads
-- You must allow authenticated users to `insert` into `storage.objects` for your bucket.
+## 🗄 Database Architecture
 
-Security
-- ADMIN_TOKEN is a minimal approach. The Admin UI is not linked publicly; access the admin panel at `/admin` by URL and sign in with the token. For production, add proper authentication and HTTPS.
+### `posts` Table
 
-Contact Form (Formspree)
+| Column        | Type        | Details |
+|--------------|------------|----------|
+| id           | UUID       | Primary key (`gen_random_uuid()`) |
+| title        | text       | Not null |
+| slug         | text       | Unique |
+| excerpt      | text       | Nullable |
+| content      | text       | Blog body |
+| image        | text       | Default `/remax_logo.png` |
+| read_time    | text       | Default `5 min read` |
+| category_id  | UUID       | Foreign key → `categories(id)` |
+| published    | boolean    | Default `true` |
+| created_at   | timestamp  | Default `now()` |
+| updated_at   | timestamp  | Default `now()` |
 
-- The “Let’s Connect” popup submits to Formspree via `@formspree/react`.
-- Current Formspree form id is `mnjzlbko`.
+---
 
-If you'd like, I can:
-- Add edit / preview features in the Admin UI.
-- Add server-side authentication (username/password + sessions) and an audit log.
-- Create a protected GitHub workflow (e.g., create a PR instead of pushing directly) so changes are reviewed.
+### `categories` Table
 
+| Column | Type | Details |
+|--------|------|----------|
+| id     | UUID | Primary key |
+| name   | text | Unique |
+| slug   | text | Unique |
 
-ci: trigger re-run after lockfile checks
