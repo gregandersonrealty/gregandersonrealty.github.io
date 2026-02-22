@@ -24,23 +24,13 @@ const socialLinks = [
 ];
 
 const serviceAreas = [
-  "Chaska",
-  "Chanhassen",
-  "Victoria",
-  "Eden Prairie",
-  "Carver",
-  "Waconia",
-  "Mayer",
-  "Cologne",
+  "Chaska", "Chanhassen", "Victoria", "Eden Prairie",
+  "Carver", "Waconia", "Mayer", "Cologne",
 ];
 
 const designations = [
-  "41 Years",
-  "Trusted Advisor",
-  "Top 1% MN",
-  "Luxury Specialist",
-  "Certified Negotiator",
-  "Community Expert",
+  "41 Years", "Trusted Advisor", "Top 1% MN",
+  "Luxury Specialist", "Certified Negotiator", "Community Expert",
 ];
 
 function TikTok({ className }: { className?: string }) {
@@ -68,7 +58,7 @@ export default function About() {
             </div>
 
             <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-              <a
+              <Link
                 href="/probate-estate-real-estate"
                 className="group bg-card border border-border/50 rounded-2xl p-8 hover:shadow-lg transition-all hover:border-primary/20"
                 data-testid="link-pillar-probate"
@@ -82,9 +72,9 @@ export default function About() {
                 <span className="inline-flex items-center gap-1.5 text-primary text-sm font-medium group-hover:gap-2.5 transition-all">
                   Learn more <ArrowRight className="w-4 h-4" />
                 </span>
-              </a>
+              </Link>
 
-              <a
+              <Link
                 href="/pre-foreclosure-distressed-property"
                 className="group bg-card border border-border/50 rounded-2xl p-8 hover:shadow-lg transition-all hover:border-primary/20"
                 data-testid="link-pillar-foreclosure"
@@ -98,9 +88,9 @@ export default function About() {
                 <span className="inline-flex items-center gap-1.5 text-primary text-sm font-medium group-hover:gap-2.5 transition-all">
                   Learn more <ArrowRight className="w-4 h-4" />
                 </span>
-              </a>
+              </Link>
 
-              <a
+              <Link
                 href="/downsizing"
                 className="group bg-card border border-border/50 rounded-2xl p-8 hover:shadow-lg transition-all hover:border-primary/20"
                 data-testid="link-pillar-downsizing"
@@ -114,9 +104,9 @@ export default function About() {
                 <span className="inline-flex items-center gap-1.5 text-primary text-sm font-medium group-hover:gap-2.5 transition-all">
                   Learn more <ArrowRight className="w-4 h-4" />
                 </span>
-              </a>
+              </Link>
 
-              <a
+              <Link
                 href="/carver-county-market"
                 className="group bg-card border border-border/50 rounded-2xl p-8 hover:shadow-lg transition-all hover:border-primary/20"
                 data-testid="link-pillar-market"
@@ -130,9 +120,9 @@ export default function About() {
                 <span className="inline-flex items-center gap-1.5 text-primary text-sm font-medium group-hover:gap-2.5 transition-all">
                   Learn more <ArrowRight className="w-4 h-4" />
                 </span>
-              </a>
+              </Link>
 
-              <a
+              <Link
                 href="/living-in-carver-county-podcast"
                 className="group bg-card border border-border/50 rounded-2xl p-8 hover:shadow-lg transition-all hover:border-primary/20 md:col-span-2 lg:col-span-1"
                 data-testid="link-pillar-podcast"
@@ -146,7 +136,7 @@ export default function About() {
                 <span className="inline-flex items-center gap-1.5 text-primary text-sm font-medium group-hover:gap-2.5 transition-all">
                   Learn more <ArrowRight className="w-4 h-4" />
                 </span>
-              </a>
+              </Link>
             </div>
           </div>
         </section>
@@ -158,7 +148,7 @@ export default function About() {
           <div className="max-w-6xl mx-auto px-6 lg:px-8 w-full">
             <div className="flex justify-center">
               <div className="w-full max-w-4xl">
-                <ConnectContactSection title="Let’s Talk" description="" />
+                <ConnectContactSection title="Let's Talk" description="" />
               </div>
             </div>
           </div>

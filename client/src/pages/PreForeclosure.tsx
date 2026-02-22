@@ -1,7 +1,7 @@
+import { Link } from "wouter";
 import { Navbar } from "@/components/Navbar";
 import { Footer } from "@/components/Footer";
 import { ArrowLeft } from "lucide-react";
-import { Link } from "wouter";
 
 export default function PreForeclosure() {
   return (
@@ -13,6 +13,7 @@ export default function PreForeclosure() {
           <Link
             href="/about"
             className="inline-flex items-center gap-2 text-muted-foreground hover:text-foreground transition-colors"
+            data-testid="link-back-about"
           >
             <ArrowLeft className="w-4 h-4" />
             Back
@@ -62,17 +63,18 @@ export default function PreForeclosure() {
             </p>
           </div>
 
-          <hr className="my-10 border-border/50" />
+          <div className="my-10 border-t border-border/50" />
 
           <footer className="text-sm text-muted-foreground space-y-3">
             <p>Greg Anderson, REALTOR® | RE/MAX Advisors West</p>
             <p>Serving Chaska, Chanhassen, Victoria, Waconia &amp; all of Carver County since 1985. 3,000+ homes sold.</p>
             <p>
-              The Living In Carver County Podcast — connecting friends, building community.
+              The Living In Carver County Podcast — connecting friends, building community.{" "}
               Available on{" "}
               <a href="https://open.spotify.com" target="_blank" rel="noopener noreferrer" className="underline hover:text-foreground">Spotify</a>,{" "}
               <a href="https://podcasts.apple.com" target="_blank" rel="noopener noreferrer" className="underline hover:text-foreground">Apple Podcasts</a>,{" "}
-              <a href="https://youtube.com" target="_blank" rel="noopener noreferrer" className="underline hover:text-foreground">YouTube</a>, and everywhere you listen.
+              <a href="https://www.youtube.com/@HelloIamGregAnderson" target="_blank" rel="noopener noreferrer" className="underline hover:text-foreground">YouTube</a>,{" "}
+              and everywhere you listen.
             </p>
             <p>
               <a href="https://helloisamgreganderson.com" target="_blank" rel="noopener noreferrer" className="underline hover:text-foreground">HelloIamGregAnderson.com</a>
