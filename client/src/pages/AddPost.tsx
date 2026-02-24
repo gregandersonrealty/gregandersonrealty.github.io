@@ -10,6 +10,7 @@ import { supabase } from "@/lib/supabase";
 import { TiptapEditor } from "@/components/TiptapEditor";
 import type { JSONContent } from "@tiptap/react";
 import { coerceToRichContent, extractPlainTextFromRichContent } from "@/lib/tiptap";
+import { Helmet } from "react-helmet-async";
 
 export default function AddPost() {
   const [title, setTitle] = useState("");
@@ -73,7 +74,7 @@ export default function AddPost() {
         setExcerpt(data.excerpt || "");
         setCategoryId(data.category_id || "");
         setType(data.type || "article");
-        
+
         // Set existing image
         if (data.image) {
           // Check if it's already a URL (not base64)
@@ -87,7 +88,7 @@ export default function AddPost() {
             setFeaturedImageMode("upload");
           }
         }
-        
+
         const rich = coerceToRichContent(data.content);
         if (rich.kind === "tiptap") setDoc(rich.doc);
         else setDoc({ type: "doc", content: [{ type: "paragraph" }] });
@@ -112,17 +113,17 @@ export default function AddPost() {
   async function onFileChange(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
     if (!file) return;
-    
+
     setImageFileName(file.name);
     setImageFile(file);
-    
+
     // Create preview
     const reader = new FileReader();
     reader.onload = () => {
       setImagePreview(String(reader.result));
     };
     reader.readAsDataURL(file);
-    
+
     setImageUrl("");
     setFeaturedImageMode("upload");
   }
@@ -144,7 +145,7 @@ export default function AddPost() {
     // Generate unique filename
     const fileExt = file.name.split('.').pop();
     const fileName = `${Date.now()}-${Math.random().toString(36).substring(7)}.${fileExt}`;
-    
+
     // Upload to Supabase Storage
     const { data, error } = await supabase.storage
       .from('blog-images')
@@ -193,10 +194,10 @@ export default function AddPost() {
 
     setLoading(true);
     setUploadingImage(true);
-    
+
     try {
       let finalImageUrl = imageUrl; // Use URL if provided
-      
+
       // If user uploaded a file, upload it to storage
       if (imageFile && featuredImageMode === "upload") {
         try {
@@ -229,7 +230,7 @@ export default function AddPost() {
           readTime,
         });
       }
-      
+
       queryClient.invalidateQueries({ queryKey: ["posts"] });
       queryClient.invalidateQueries({ queryKey: ["post-previews"] });
       toast({ title: isEditing ? "Post updated" : "Post created", description: `"${title}" has been saved.` });
@@ -261,6 +262,9 @@ export default function AddPost() {
       <Navbar />
 
       <main className="flex-1 py-10">
+        <Helmet>
+          <title>Add Post | Greg Anderson</title>
+        </Helmet>
         <div className="max-w-6xl mx-auto px-6 lg:px-8">
           <div className="flex flex-col gap-8 lg:flex-row">
             <section className="flex-1">

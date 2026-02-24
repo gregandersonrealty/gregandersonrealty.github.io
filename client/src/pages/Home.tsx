@@ -7,6 +7,7 @@ import { BlogCard } from "@/components/BlogCard";
 import { usePostPreviews } from "@/lib/postsApi";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { ConnectContactSection } from "@/components/ConnectContactSection";
+import { Helmet } from "react-helmet-async";
 
 const highlights = [
   { icon: HomeIcon, value: "3,000+", label: "Families Helped" },
@@ -43,6 +44,10 @@ export default function Home() {
       <Navbar />
 
       <main className="flex-1">
+        <Helmet>
+          <title>Greg Anderson | Carver County REALTOR® Since 1985</title>
+          <meta name="description" content="Greg Anderson has helped 3,000+ families buy and sell homes in Chaska, Chanhassen, Victoria, Waconia and all of Carver County since 1985." />
+        </Helmet>
         {/* Hero Section */}
         <section className="relative overflow-hidden">
           <div className="absolute inset-0">

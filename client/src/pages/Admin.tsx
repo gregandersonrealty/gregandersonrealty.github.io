@@ -8,6 +8,7 @@ import { useState, useEffect } from "react";
 import { useCategories, createCategory, renameCategory, deleteCategory } from "@/lib/categoriesApi";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/lib/supabase";
+import { Helmet } from "react-helmet-async";
 
 export default function Admin() {
   const { data: posts = [], isLoading } = usePosts();
@@ -109,6 +110,9 @@ export default function Admin() {
       <Navbar />
 
       <main className="flex-1 py-12">
+        <Helmet>
+          <title>Admin | Greg Anderson</title>
+        </Helmet>
         <div className="max-w-4xl mx-auto px-6 lg:px-8">
           <div className="flex items-center justify-between mb-8">
             <div>

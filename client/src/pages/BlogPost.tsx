@@ -9,13 +9,14 @@ import { EditorJsRenderer } from "@/components/EditorJsRenderer";
 import { coerceToEditorJsOutput } from "@/lib/editorjs";
 import { coerceToRichContent } from "@/lib/tiptap";
 import { TiptapRenderer } from "@/components/TiptapRenderer";
+import { Helmet } from "react-helmet-async";
 
 export default function BlogPost() {
   const { id } = useParams<{ id: string }>();
-  
+
   // Fetch the single post with full content and image
   const { data: post, isLoading: postLoading, isError: postError } = usePost(id || "");
-  
+
   // Fetch related posts (just previews, no content)
   const { data: allPosts = [] } = usePostPreviews();
   const relatedPosts = allPosts.filter((p) => p.id !== id && p.category === post?.category).slice(0, 2);
@@ -69,6 +70,10 @@ export default function BlogPost() {
       <Navbar />
 
       <main className="flex-1">
+        <Helmet>
+          <title>{post?.title ? `${post.title} | Greg Anderson` : "Greg Anderson | Carver County REALTOR®"}</title>
+          <meta name="description" content={post?.excerpt || "Greg Anderson — Carver County REALTOR® since 1985."} />
+        </Helmet>
         {/* Back Link */}
         <div className="max-w-4xl mx-auto px-6 lg:px-8 pt-8">
           <Link

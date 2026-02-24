@@ -7,6 +7,7 @@ import { BlogCard } from "@/components/BlogCard";
 import { usePostPreviews } from "@/lib/postsApi";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { ConnectContactSection } from "@/components/ConnectContactSection";
+import { Helmet } from "react-helmet-async";
 
 const highlights = [
   { icon: HomeIcon, value: "3,000+", label: "Families Helped" },

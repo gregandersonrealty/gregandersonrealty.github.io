@@ -5,6 +5,7 @@ import { BlogCard } from "@/components/BlogCard";
 import { useCategories } from "@/lib/categoriesApi";
 import { Search, ChevronLeft, ChevronRight } from "lucide-react";
 import { usePostPreviews, usePostCount } from "@/lib/postsApi";
+import { Helmet } from "react-helmet-async";
 
 const POSTS_PER_PAGE = 9;
 
@@ -55,6 +56,10 @@ export default function Blog() {
       <Navbar />
 
       <main className="flex-1">
+        <Helmet>
+          <title>Real Estate Blog | Greg Anderson Carver County</title>
+          <meta name="description" content="Insights, market updates, and local knowledge from Greg Anderson — Carver County's trusted REALTOR® since 1985." />
+        </Helmet>
         {/* Header (kept compact so posts are the focus) */}
         <section className="pt-8 pb-5 md:pt-10 md:pb-6 bg-secondary/20">
           <div className="max-w-6xl mx-auto px-6 lg:px-8">
@@ -157,7 +162,7 @@ export default function Blog() {
                     <button
                       onClick={() => setCurrentPage(p => p + 1)}
                       disabled={!hasNextPage}
-                      className="inline-flex items-center gap-2 px-4 py-2 rounded-lg border border-border bg-background hover:bg-secondary disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                      className="inline-flex items-center gap-2 px-4 py-2 rounded-lg border border-border bg-background hover:bg-secondary disabled:opacity-50 disabled:cursor-not-allowed transition-colors cursor-pointer"
                       data-testid="button-next-page"
                     >
                       Next

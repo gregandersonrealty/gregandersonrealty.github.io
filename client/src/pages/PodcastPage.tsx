@@ -2,6 +2,7 @@ import { Link } from "wouter";
 import { Navbar } from "@/components/Navbar";
 import { Footer } from "@/components/Footer";
 import { ArrowLeft, ArrowRight } from "lucide-react";
+import { Helmet } from "react-helmet-async";
 
 export default function PodcastPage() {
   return (
@@ -9,6 +10,10 @@ export default function PodcastPage() {
       <Navbar />
 
       <main className="flex-1">
+        <Helmet>
+          <title>The Living In Carver County Podcast | Greg Anderson</title>
+          <meta name="description" content="The Living In Carver County Podcast is an insider's conversation with the educators, officials, business owners, and community leaders who make Carver County a great place to live." />
+        </Helmet>
         <div className="max-w-3xl mx-auto px-6 lg:px-8 pt-8">
           <Link
             href="/about"
@@ -21,11 +26,22 @@ export default function PodcastPage() {
         </div>
 
         <article className="max-w-3xl mx-auto px-6 lg:px-8 py-12">
-          <header className="mb-10">
+          <header className="mb-4">
             <h1 className="font-display text-3xl md:text-4xl lg:text-5xl font-semibold leading-tight">
               The Conversations Carver County Isn't Having Anywhere Else
             </h1>
           </header>
+
+          <div className="mb-10">
+            <Link
+              href="/about"
+              className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-primary transition-colors"
+              data-testid="link-about-greg"
+            >
+              Learn more about Greg Anderson
+              <ArrowRight className="w-3.5 h-3.5" />
+            </Link>
+          </div>
 
           <div className="prose prose-lg max-w-none text-foreground leading-relaxed space-y-6">
             <p>
