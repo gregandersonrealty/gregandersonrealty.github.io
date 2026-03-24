@@ -52,72 +52,28 @@ export function Navbar() {
   }
 
   return (
-    <header className="sticky top-0 z-50 bg-background/95 backdrop-blur-sm border-b border-border/50">
-      <nav className="max-w-6xl mx-auto px-6 lg:px-8">
-        <div className="flex items-center justify-between h-20">
-          <Link href="/" onClick={handleNavLinkClick("/")} data-testid="link-home-logo">
-            <div className="flex items-center gap-3">
-              <img
-                src={`${import.meta.env.BASE_URL}remax_logo.png`}
-                alt="RE\/MAX logo"
-                className="w-8 h-8 sm:w-10 sm:h-10 rounded-full object-cover"
-              />
-              <div className="flex flex-col">
-                <span className="font-display text-xl font-semibold tracking-tight text-foreground">
-                  Greg Anderson
-                </span>
-                <span className="text-xs text-primary font-medium tracking-wide">
-                  RE/MAX Advisors West
-                </span>
-              </div>
+    <header className="sticky top-0 z-50 bg-background border-b border-border">
+      <nav className="w-full">
+        {/* Top bar: Logo & Branding */}
+        <div className="flex items-center justify-between px-6 lg:px-10 py-4 border-b border-border">
+          <Link href="/" onClick={handleNavLinkClick("/")} data-testid="link-home-logo" className="flex items-center gap-3">
+            <img
+              src={`${import.meta.env.BASE_URL}remax_logo.png`}
+              alt="RE\/MAX logo"
+              className="w-9 h-9 rounded-full object-cover"
+            />
+            <div className="flex flex-col">
+              <span className="font-display text-lg font-bold tracking-tight text-foreground">
+                Greg Anderson
+              </span>
+              <span className="text-[10px] text-primary font-bold uppercase tracking-widest">
+                RE/MAX Advisors West
+              </span>
             </div>
           </Link>
 
-          <div className="hidden md:flex items-center gap-8">
-            {navLinks.map((link) => (
-              <Link
-                key={link.href}
-                href={link.href}
-                onClick={handleNavLinkClick(link.href)}
-                data-testid={`link-nav-${link.label.toLowerCase()}`}
-                className={`text-sm font-medium tracking-wide transition-colors hover:text-primary ${
-                  location === link.href
-                    ? "text-primary"
-                    : "text-muted-foreground"
-                }`}
-              >
-                {link.label}
-              </Link>
-            ))}
-            <a
-              href="https://livingincarvercountypodcast.com"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-sm font-medium tracking-wide text-muted-foreground hover:text-primary transition-colors"
-              data-testid="link-nav-podcast"
-            >
-              Podcast
-            </a>
-            
-            <div className="flex items-center gap-1 ml-2 pl-4 border-l border-border/50">
-              {socialLinks.map((social) => (
-                <a
-                  key={social.label}
-                  href={social.href}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="p-2 rounded-full text-muted-foreground hover:text-primary hover:bg-secondary/50 transition-colors"
-                  aria-label={social.label}
-                  data-testid={`link-nav-social-${social.label.toLowerCase()}`}
-                >
-                  <social.icon className="w-4 h-4" />
-                </a>
-              ))}
-            </div>
-          </div>
-
           <button
-            className="md:hidden p-2 -mr-2"
+            className="md:hidden p-2"
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
             data-testid="button-mobile-menu"
           >
@@ -129,16 +85,68 @@ export function Navbar() {
           </button>
         </div>
 
+        {/* Desktop Navigation */}
+        <div className="hidden md:flex items-stretch border-b border-border divide-x divide-border">
+          {/* Main nav links */}
+          <div className="flex items-center">
+            {navLinks.map((link, index) => (
+              <Link
+                key={link.href}
+                href={link.href}
+                onClick={handleNavLinkClick(link.href)}
+                data-testid={`link-nav-${link.label.toLowerCase()}`}
+                className={`px-6 py-3 text-xs font-bold uppercase tracking-widest transition-colors border-b-2 ${
+                  location === link.href
+                    ? "text-primary border-b-primary"
+                    : "text-muted-foreground border-b-transparent hover:text-foreground"
+                }`}
+              >
+                {link.label}
+              </Link>
+            ))}
+            <a
+              href="https://livingincarvercountypodcast.com"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="px-6 py-3 text-xs font-bold uppercase tracking-widest text-muted-foreground hover:text-foreground transition-colors"
+              data-testid="link-nav-podcast"
+            >
+              Podcast
+            </a>
+          </div>
+
+          {/* Right spacer */}
+          <div className="flex-1" />
+
+          {/* Social links */}
+          <div className="flex items-center gap-0 pl-4">
+            {socialLinks.map((social) => (
+              <a
+                key={social.label}
+                href={social.href}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="p-3 text-muted-foreground hover:text-primary hover:bg-secondary/30 transition-colors border-r border-border/30 last:border-r-0"
+                aria-label={social.label}
+                data-testid={`link-nav-social-${social.label.toLowerCase()}`}
+              >
+                <social.icon className="w-4 h-4" />
+              </a>
+            ))}
+          </div>
+        </div>
+
+        {/* Mobile Navigation */}
         {mobileMenuOpen && (
-          <div className="md:hidden py-4 border-t border-border/50 animate-fade-in">
-            <div className="flex flex-col gap-4">
+          <div className="md:hidden border-b border-border animate-fade-in">
+            <div className="flex flex-col divide-y divide-border/50 px-6 py-4">
               {navLinks.map((link) => (
                 <Link
                   key={link.href}
                   href={link.href}
                   onClick={handleNavLinkClick(link.href)}
                   data-testid={`link-mobile-${link.label.toLowerCase()}`}
-                  className={`text-base font-medium py-2 transition-colors ${
+                  className={`py-3 text-xs font-bold uppercase tracking-widest transition-colors ${
                     location === link.href
                       ? "text-primary"
                       : "text-muted-foreground"
@@ -151,22 +159,22 @@ export function Navbar() {
                 href="https://livingincarvercountypodcast.com"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-base font-medium py-2 text-muted-foreground"
+                className="py-3 text-xs font-bold uppercase tracking-widest text-muted-foreground"
                 data-testid="link-mobile-podcast"
               >
                 Podcast
               </a>
-              <div className="flex items-center gap-3 pt-4 border-t border-border/50">
+              <div className="flex items-center gap-2 pt-4 mt-2 border-t border-border/50">
                 {socialLinks.map((social) => (
                   <a
                     key={social.label}
                     href={social.href}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="p-2 rounded-full bg-secondary text-foreground"
+                    className="p-2 text-muted-foreground hover:text-primary hover:bg-secondary/50 transition-colors"
                     aria-label={social.label}
                   >
-                    <social.icon className="w-5 h-5" />
+                    <social.icon className="w-4 h-4" />
                   </a>
                 ))}
               </div>
