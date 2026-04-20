@@ -147,7 +147,7 @@ export default function Home() {
               <div className="grid grid-cols-1 xl:grid-cols-[42%_58%]">
                 <div className="relative min-h-[220px] xl:min-h-[250px] overflow-hidden bg-black/10">
                   <img
-                    src={`${import.meta.env.BASE_URL}greg_portrait.jpg`}
+                    src={`${import.meta.env.BASE_URL}greg_ink.png`}
                     alt="Greg Anderson"
                     className="absolute inset-0 w-full h-full object-cover scale-[0.88]"
                     style={{ objectPosition: "center center" }}
